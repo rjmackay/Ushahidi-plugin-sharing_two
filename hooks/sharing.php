@@ -32,18 +32,18 @@ class sharing {
 	public function add()
 	{
 		// Only add the events if we are on that controller
-		if (Router::$controller == 'manage' or Router::$controller == 'sharing')
+		if (strripos(Router::$current_uri, "admin/manage") !== false)
 		{
-			Event::add('ushahidi_action.nav_admin_manage', array($this,'_sharing'));
+			Event::add('ushahidi_action.nav_admin_manage', array($this,'sharing_admin_nav'));
 		}
-		elseif (strripos(Router::$current_uri, "main") !== false)
+		elseif (Router::$controller == "main")
 		{
-			Event::add('ushahidi_action.header_scripts', array($this, 'sharing_js'));
-			Event::add('ushahidi_action.main_sidebar', array($this, 'sharing_bar'));
+			Event::add('ushahidi_action.header_scripts', array($this, 'sharing_bar_js'));
+			Event::add('ushahidi_action.main_sidebar_post_filters', array($this, 'sharing_bar'));
 		}
 	}
 
-	public function _sharing()
+	public function sharing_admin_nav()
 	{
 		$this_sub_page = Event::$data;
 		echo ($this_sub_page == "sharing") ? "Sharing" : "<a href=\"".url::site()."admin/manage/sharing\">Sharing</a>";
@@ -72,7 +72,7 @@ class sharing {
 	/**
 	 * Loads the JavaScript for the sharing sidebar
 	 */
-	public function sharing_js()
+	public function sharing_bar_js()
 	{
 		$js = View::factory('js/sharing_bar_js');
 		$js->render(TRUE);
