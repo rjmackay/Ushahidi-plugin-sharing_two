@@ -19,19 +19,15 @@
 $(document).ready(function() {
 	
 	// Sharing Layer[s] Switch Action
-	$("a[id^='share_']").click(function() {
+	$("#sharing_switch a").click(function() {
 		var shareID = this.id.substring(6);
 	
-		if ( $("#share_" + shareID).hasClass("active")) {
-			map.deleteLayer($("#share_" + shareID).html());
-			$("#share_" + shareID).removeClass("active");
-		
-		}  else {
-			$("#share_" + shareID).addClass("active");
-			map.addLayer(Ushahidi.SHARES, {
-							name: $("#share_" + shareID).html(),
-							url: "json/share/index/" + shareID
-						});
+		if ( ! $(this).hasClass("active") ) {
+			$("#sharing_switch a").removeClass("active");
+			$(this).addClass("active");
+			
+			// Update report filters
+			map.updateReportFilters({sharing: shareID});
 		}
 		
 		return false;
