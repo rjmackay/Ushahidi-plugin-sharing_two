@@ -17,9 +17,6 @@ class sharing {
 	/**
 	 * Registers the main event add method
 	 */
-
-	protected $user;
-
 	public function __construct()
 	{
 		// Hook into routing
@@ -131,7 +128,7 @@ class sharing {
 	public function json_replace_markers()
 	{
 		// Check we're filtered to a single country site
-		if ($_GET['sharing'] != 'all' && $_GET['sharing'] != 'main')
+		if ($_GET['sharing'] != 'all' AND $_GET['sharing'] != 'main')
 		{
 			$sharing_id = intval($_GET['sharing']);
 			
