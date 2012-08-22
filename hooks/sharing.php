@@ -19,8 +19,22 @@ class sharing {
 	 */
 	public function __construct()
 	{
-		// Hook into routing
+		// Try to alter routing now
+		$this->routing();
+		
+		// hook into routing - in case we're running too early
+		Event::add_after('system.routing', array('Router', 'find_uri'), array($this, 'routing'));
+		
+		//  Add other events just before controller runs
 		Event::add('system.pre_controller', array($this, 'add'));
+	}
+	
+	public function routing()
+	{
+		if (stripos(Router::$current_uri, 'json') !== FALSE)
+		{
+			Router::$current_uri = str_replace('json','json/share', Router::$current_uri);
+		}
 	}
 	
 	/**
@@ -38,19 +52,13 @@ class sharing {
 			Event::add('ushahidi_action.header_scripts', array($this, 'sharing_bar_js'));
 			Event::add('ushahidi_action.main_sidebar_post_filters', array($this, 'sharing_bar'));
 		}
-		elseif (Router::$controller == 'json')
+		elseif (Router::$controller == 'json' OR Router::$controller == 'json/share')
 		{
 			// Quick hack to set default sharing value
-			! isset($_GET['sharing']) ? $_GET['sharing'] = 'all' : null;
+			! isset($_GET['sharing']) ? $_GET['sharing'] = Kohana::config('sharing_two.default_sharing_filter') : null;
 			
-			Event::add('ushahidi_filter.json_alter_markers', array($this, 'json_alter_markers'));
-			Event::add('ushahidi_filter.json_replace_markers', array($this, 'json_replace_markers'));
-
-			// Override json controller with our custom version
-			// Might not be needed
-			/*
-			Router::$controller = 'json/sharing';
-			*/
+			//Event::add('ushahidi_filter.json_alter_markers', array($this, 'json_alter_markers'));
+			//Event::add('ushahidi_filter.json_replace_markers', array($this, 'json_replace_markers'));
 		}
 	}
 
