@@ -16,101 +16,149 @@
 class S_Sharing_Controller extends Controller {
 
 	public function __construct()
-    {
-        parent::__construct();
+	{
+		parent::__construct();
 	}
 
 	public function index()
 	{
 		// Get all currently active shares
-		$shares = ORM::factory('sharing')
-			->where('sharing_active', 1)
+		$sites = ORM::factory('sharing_site')
+			->where('site_active', 1)
 			->find_all();
 
-		foreach ($shares as $share)
+		foreach ($sites as $site)
 		{
-			$sharing_url = $share->sharing_url;
-
-			$this->_parse_json($share->id, $sharing_url);
+			$this->_process_site($site);
 		}
+
+		return TRUE;
 	}
 
 	/**
 	 * Use remote Ushahidi deployments API to get Incident Data
 	 * Limit to 20 not to kill remote server
 	 */
-	private function _parse_json($sharing_id = NULL, $sharing_url = NULL)
+	private function _process_site($site)
 	{
-		if ( ! $sharing_id OR ! $sharing_url)
+		if ( ! $site instanceOf Sharing_site_Model)
 		{
-			return false;
+			$sites = ORM::factory('sharing_site')->find($site);
 		}
+		if ( ! $site->loaded) return false;
 
-		$timeout = 5;
 		$limit = 20;
 		$since_id = 0;
-		$modified_ids = array(); // this is an array of our primary keys
+		$modified_ids = array(0); // this is an array of our primary keys
 		$more_reports_to_pull = TRUE;
-
+		// @todo grab new reports first
 		while($more_reports_to_pull == TRUE)
 		{
-			$api_url = "/api?task=incidents&limit=".$limit."&resp=json&orderfield=incidentid&sort=0&by=sinceid&id=".$since_id;
-
-			$ch = curl_init();
-			curl_setopt($ch,CURLOPT_URL, sharing_helper::clean_url($sharing_url).$api_url);
-			curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
-			curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout);
-			curl_setopt($ch,CURLOPT_SSL_VERIFYPEER, false);
-			$json = curl_exec($ch);
-			curl_close($ch);
-
-			$all_data = json_decode($json, false);
-			if ( ! $all_data)
+			$UshApiLib_Site_Info = new UshApiLib_Site_Info(sharing_helper::clean_url($site->site_url)."/api");
+		
+			$params = new UshApiLib_Incidents_Task_Parameter();
+			$params->setBy(UshApiLib_Incidents_Bys::INCIDENTS_SINCE_ID);
+			$params->setLimit($limit);
+			$params->setId($since_id);
+			$params->setOrderField(UshApiLib_Task_Base::INCIDENT_ID_INDEX);
+			$params->setSort(0);
+			
+			if (isset($_GET['debug']) AND $_GET['debug'] == 1)
 			{
-				return false;
+				echo "<strong>Query String:</strong> ". Kohana::debug($params->get_query_string()) . "<br/><br/>";
 			}
-
-			if ( ! isset($all_data->payload->incidents))
+			
+			$task = new UshApiLib_Incidents_Task($params, $UshApiLib_Site_Info);
+			$response = $task->execute();
+			
+			if ($response->getError_code())
 			{
-				return false;
-			}
-
-			// Parse Incidents Into Database
-
-			$count = 0;
-			foreach($all_data->payload->incidents as $incident)
-			{
-				// See if this incident already exists so we can edit it
-
-				$item_check = ORM::factory('sharing_incident')
-							->where('sharing_id', $sharing_id)
-							->where('incident_id',$incident->incident->incidentid)
-							->find();
-
-				if ($item_check->loaded==TRUE)
+				if (isset($_GET['debug']) AND $_GET['debug'] == 1)
 				{
-					$item = ORM::factory('sharing_incident',$item_check->id);
-				}else{
-					$item = ORM::factory('sharing_incident');
+					echo "Error Code: ". $response->getError_code() . " Message: ". $response->getError_message() . "<BR /><BR />";
 				}
-				$item->sharing_id = $sharing_id;
-				$item->incident_id = $incident->incident->incidentid;
-				$item->incident_title = $incident->incident->incidenttitle;
-				$item->latitude = $incident->incident->locationlatitude;
-				$item->longitude = $incident->incident->locationlongitude;
-				$item->incident_date = $incident->incident->incidentdate;
-				$item->save();
+				return;
+			}
+			
+			// Grab existing items
+			$existing_items = ORM::factory('sharing_incident')
+							->where('sharing_site_id', $site->id)
+							->find_all();
+			
+			$array = array();
+			foreach ($existing_items as $item)
+			{
+				$array[$item->remote_incident_id] = $item;
+			}
+			$existing_items = $array;
+			
+			// Parse Incidents Into Database
+			$count = 0;
+			foreach($response->getIncidents() as $remote_incident_id => $incident_json)
+			{
+				if (isset($_GET['debug']) AND $_GET['debug'] == 1)
+				{
+					echo "Importing report $remote_incident_id : ". $incident_json["incident"]->incident_title. "<br/>";
+				}
+				$orm_incident = $incident_json['incident'];
+				
+				if (isset($existing_items[$remote_incident_id]))
+				{
+					$sharing_incident = $existing_items[$remote_incident_id];
+					// Load existing incident and update values
+					$existing_incident = $sharing_incident->incident;
+					$existing_incident->incident_title = $orm_incident->incident_title;
+					$existing_incident->incident_description = $orm_incident->incident_description;
+					$existing_incident->incident_date = $orm_incident->incident_date;
+					$existing_incident->incident_mode = $orm_incident->incident_mode;
+					$existing_incident->incident_active = $orm_incident->incident_active;
+					$existing_incident->incident_verified = $orm_incident->incident_verified;
+					$orm_incident = $existing_incident;
+				} else {
+					$sharing_incident = ORM::factory('sharing_incident');
+				}
+				
+				// Save everything
+				$incident_json['location']->save();
+				$orm_incident->location_id = $incident_json['location']->id;
+				
+				// Find and save categories
+				$category_titles = array(0);
+				foreach( $incident_json['categories'] as $category)
+				{
+					$category_titles[] = $category->category_title;
+				}
+				$categories = ORM::factory('category')->in('category_title', $category_titles)->find_all();
+				$incident->categories = $categories->primary_key_array();
+				
+				// Save incident
+				$orm_incident->save();
+				
+				// Delete any existing media
+				$existing_media = $orm_incident->media;
+				if ($existing_media->count())
+				{
+					ORM::factory('media')->in('id', $orm_incident->media->primary_key_array())->delete_all();
+				}
+				// Save media
+				foreach($orm_incident->media as $media)
+				{
+					$media->incident_id = $orm_incident->id;
+					$media->save();
+				}
+				
+				$sharing_incident->sharing_site_id = $site->id;
+				$sharing_incident->remote_incident_id = $remote_incident_id;
+				$sharing_incident->incident_id = $orm_incident->id;
+				$sharing_incident->save();
 
 				// Save the primary key of the row we touched. We will be deleting ones that weren't touched.
-
-				$modified_ids[] = $item->id;
+				$modified_ids[] = $sharing_incident->id;
 
 				// Save the highest pulled incident id so we can grab the next set from that id on
-
-				$since_id = $incident->incident->incidentid;
+				$since_id = $remote_incident_id;
 
 				// Save count so we know if we need to pull any more reports or not
-
 				$count++;
 			}
 
@@ -121,10 +169,9 @@ class S_Sharing_Controller extends Controller {
 		}
 
 		// Delete the reports that are no longer being displayed on the shared site
-
 		ORM::factory('sharing_incident')
-			->notin('id',$modified_ids)
-			->where('sharing_id', $sharing_id)
+			->notin('id', $modified_ids)
+			->where('sharing_site_id', $site->id)
 			->delete_all();
 	}
 }

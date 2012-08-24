@@ -16,13 +16,13 @@
 			</a></li>
 			<?php
 			
-			foreach ($shares as $share => $share_info)
+			foreach ($sites as $site_id => $site_info)
 			{
-				$sharing_name = $share_info[0];
-				$sharing_color = $share_info[1];
-				$class = (Kohana::config('sharing_two.default_sharing_filter') == $share) ? "active" : '';
-				echo '<li><a href="#" id="share_'. $share .'" class="'.$class.'"><div class="swatch" style="background-color:#'.$sharing_color.'"></div>
-				<div>'.$sharing_name.'</div></a></li>';
+				$site_name = $site_info[0];
+				$site_color = $site_info[1];
+				$class = (Kohana::config('sharing_two.default_sharing_filter') == $site_id) ? "active" : '';
+				echo '<li><a href="#" id="share_'. $site_id .'" class="'.$class.'"><div class="swatch" style="background-color:#'.$site_color.'"></div>
+				<div>'.$site_name.'</div></a></li>';
 			}
 			?>
 		</ul>

@@ -40,20 +40,15 @@ class Share_Controller extends Json_Controller {
 		// Check we're filtered to a single country site
 		if ($_GET['sharing'] != 'all' AND $_GET['sharing'] != 'main')
 		{
-			if ($sharing_id = intval($_GET['sharing']))
+			if ($site_id = intval($_GET['sharing']))
 			{
 				// Check the sharing site is active
-				$sharing = ORM::factory('sharing')->where('sharing_active', 1)->find($sharing_id);
-				if ($sharing->loaded)
+				$site = ORM::factory('sharing_site')->where('site_active', 1)->find($site_id);
+				if ($site->loaded)
 				{
-					$sharing_url = sharing_helper::clean_url($sharing->sharing_url);
-					$color = $sharing->sharing_color;
+					$site_url = sharing_helper::clean_url($site->site_url);
+					$color = $site->site_color;
 					$icon = "";
-					
-					// Retrieve all markers
-					$markers = ORM::factory('sharing_incident')
-									->where('sharing_id', $sharing_id)
-									->find_all();
 				}
 			}
 		}
@@ -90,39 +85,9 @@ class Share_Controller extends Json_Controller {
 		// Plugins can add or remove markers as needed
 		Event::run('ushahidi_filter.json_alter_markers', $markers);
 		
-		if ($_GET['sharing'] == 'all')
-		{
-			if (Kohana::config('sharing_two.combine_markers'))
-			{
-			$sharing_markers = ORM::factory('sharing_incident')
-									->find_all();
-			
-			$markers = array_merge($markers->as_array(), $sharing_markers->as_array());
-			}
-			// Show markers in separate colours and clusters
-			// Probably ALWAYS going to be a bad idea
-			else
-			{
-				// Get geojson features array
-				$function = "{$type}_geojson";
-				
-				$json_features = array();
-				$sites = ORM::factory('sharing')->where('sharing_active', 1)->find_all();
-				foreach ($sites as $site)
-				{
-					// Retrieve all markers
-					$sharing_markers = ORM::factory('sharing_incident')
-									->where('sharing_id', $site->id)
-									->find_all();
-					$sharing_color = $site->sharing_color;
-					$json_features = array_merge($json_features, $this->$function($sharing_markers, $category_id, $sharing_color, ''));
-				}
-			}
-		}
-		
 		// Get geojson features array
 		$function = "{$type}_geojson";
-		$json_features = array_merge($json_features, $this->$function($markers, $category_id, $color, $icon));
+		$json_features = $this->$function($markers, $category_id, $color, $icon);
 		
 		$this->render_geojson($json_features);
 	}
