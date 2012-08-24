@@ -40,16 +40,15 @@ class Share_Controller extends Json_Controller {
 		// Check we're filtered to a single country site
 		if ($_GET['sharing'] != 'all' AND $_GET['sharing'] != 'main')
 		{
-			if ($sharing_id = intval($_GET['sharing']))
+			if ($site_id = intval($_GET['sharing']))
 			{
 				// Check the sharing site is active
-				$sharing = ORM::factory('sharing')->where('sharing_active', 1)->find($sharing_id);
-				if ($sharing->loaded)
+				$site = ORM::factory('sharing_site')->where('site_active', 1)->find($site_id);
+				if ($site->loaded)
 				{
-					$sharing_url = sharing_helper::clean_url($sharing->sharing_url);
-					$color = $sharing->sharing_color;
+					$site_url = sharing_helper::clean_url($site->site_url);
+					$color = $site->site_color;
 					$icon = "";
-					
 					// Retrieve all markers
 					$markers = ORM::factory('sharing_incident')
 									->where('sharing_id', $sharing_id)

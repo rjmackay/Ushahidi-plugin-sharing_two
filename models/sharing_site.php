@@ -14,10 +14,10 @@
  * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
  */
 
-class Sharing_Model extends ORM
+class Sharing_Site_Model extends ORM
 {	
 	protected $has_many = array('sharing_incident');
 	
 	// Database table name
-	protected $table_name = 'sharing';
+	protected $table_name = 'sharing_site';
 }

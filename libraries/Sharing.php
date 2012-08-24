@@ -1,35 +1,21 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 /**
- * Sharing Hook - Load All Events
+ * Sharing Library
+ * Support functions for sharing plugin
  *
  * PHP version 5
  * LICENSE: This source file is subject to LGPL license 
  * that is available through the world-wide-web at the following URI:
  * http://www.gnu.org/copyleft/lesser.html
- * @author	   Ushahidi Team <team@ushahidi.com> 
- * @package	   Ushahidi - http://source.ushahididev.com
+ * @author	   Robbie Mackay <rm@robbiemackay.com>
+ * @package    Ushahidi - http://source.ushahididev.com
  * @copyright  Ushahidi - http://www.ushahidi.com
- * @license	   http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
+ * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
  */
 
-class sharing {
+class Sharing {
 	
-	/**
-	 * Registers the main event add method
-	 */
-	public function __construct()
-	{
-		// Try to alter routing now
-		$this->routing();
-		
-		// hook into routing - in case we're running too early
-		Event::add_after('system.routing', array('Router', 'find_uri'), array($this, 'routing'));
-		
-		//  Add other events just before controller runs
-		Event::add('system.pre_controller', array($this, 'add'));
-	}
-	
-	public function routing()
+	public static function routing()
 	{
 		if (stripos(Router::$current_uri, 'json') !== FALSE)
 		{
@@ -37,32 +23,8 @@ class sharing {
 		}
 	}
 	
-	/**
-	 * Adds all the events to the main Ushahidi application
-	 */
-	public function add()
-	{
-		// Only add the events if we are on that controller
-		if (strripos(Router::$current_uri, "admin/manage") !== false)
-		{
-			Event::add('ushahidi_action.nav_admin_manage', array($this,'sharing_admin_nav'));
-		}
-		elseif (Router::$controller == "main")
-		{
-			Event::add('ushahidi_action.header_scripts', array($this, 'sharing_bar_js'));
-			Event::add('ushahidi_action.main_sidebar_post_filters', array($this, 'sharing_bar'));
-		}
-		elseif (Router::$controller == 'json' OR Router::$controller == 'json/share')
-		{
-			// Quick hack to set default sharing value
-			! isset($_GET['sharing']) ? $_GET['sharing'] = Kohana::config('sharing_two.default_sharing_filter') : null;
-			
-			//Event::add('ushahidi_filter.json_alter_markers', array($this, 'json_alter_markers'));
-			//Event::add('ushahidi_filter.json_replace_markers', array($this, 'json_replace_markers'));
-		}
-	}
 
-	public function sharing_admin_nav()
+	public static function sharing_admin_nav()
 	{
 		$this_sub_page = Event::$data;
 		echo ($this_sub_page == "sharing") ? "Sharing" : "<a href=\"".url::site()."admin/manage/sharing\">Sharing</a>";
@@ -71,20 +33,20 @@ class sharing {
 	/**
 	 * Loads the sharing bar on the side bar on the main page
 	 */
-	public function sharing_bar()
+	public static function sharing_bar()
 	{
 		// Get all active Shares
-		$shares = array();
-		foreach (ORM::factory('sharing')
-					->where('sharing_active', 1)
-					->find_all() as $share)
+		$sites = array();
+		foreach (ORM::factory('sharing_site')
+					->where('site_active', 1)
+					->find_all() as $site)
 		{
-			$shares[$share->id] = array($share->sharing_name, $share->sharing_color);
+			$sites[$site->id] = array($site->site_name, $site->site_color);
 		}
 
 		$sharing_bar = View::factory('sharing/sharing_bar');
 
-		$sharing_bar->shares = $shares;
+		$sharing_bar->sites = $sites;
 		$sharing_bar->render(TRUE);
 	}
 	
@@ -96,7 +58,8 @@ class sharing {
 		$js = View::factory('js/sharing_bar_js');
 		$js->render(TRUE);
 	}
-
+	
+	
 	/**
 	 * Add sharing markers to json when showing all sites
 	 **/
@@ -161,4 +124,3 @@ class sharing {
 		}
 	}
 }
-new sharing;

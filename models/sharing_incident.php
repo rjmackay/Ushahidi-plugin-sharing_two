@@ -15,8 +15,8 @@
  */
 
 class Sharing_Incident_Model extends ORM
-{	
-	protected $belongs_to = array('sharing');
+{
+	protected $belongs_to = array('sharing_site');
 	
 	// Database table name
 	protected $table_name = 'sharing_incident';

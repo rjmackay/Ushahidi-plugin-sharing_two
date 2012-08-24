@@ -16,35 +16,36 @@
 class S_Sharing_Controller extends Controller {
 
 	public function __construct()
-    {
-        parent::__construct();
+	{
+		parent::__construct();
 	}
 
 	public function index()
 	{
 		// Get all currently active shares
-		$shares = ORM::factory('sharing')
-			->where('sharing_active', 1)
+		$sites = ORM::factory('sharing_site')
+			->where('site_active', 1)
 			->find_all();
 
-		foreach ($shares as $share)
+		foreach ($sites as $site)
 		{
-			$sharing_url = $share->sharing_url;
-
-			$this->_parse_json($share->id, $sharing_url);
+			$this->_process_site($site);
 		}
+
+		return TRUE;
 	}
 
 	/**
 	 * Use remote Ushahidi deployments API to get Incident Data
 	 * Limit to 20 not to kill remote server
 	 */
-	private function _parse_json($sharing_id = NULL, $sharing_url = NULL)
+	private function _process_site($site)
 	{
-		if ( ! $sharing_id OR ! $sharing_url)
+		if ( ! $site instanceOf Sharing_site_Model)
 		{
-			return false;
+			$sites = ORM::factory('sharing_site')->find($site);
 		}
+		if ( ! $site->loaded) return false;
 
 		$timeout = 5;
 		$limit = 20;
@@ -121,10 +122,9 @@ class S_Sharing_Controller extends Controller {
 		}
 
 		// Delete the reports that are no longer being displayed on the shared site
-
 		ORM::factory('sharing_incident')
-			->notin('id',$modified_ids)
-			->where('sharing_id', $sharing_id)
+			->notin('id', $modified_ids)
+			->where('sharing_site_id', $site->id)
 			->delete_all();
 	}
 }
