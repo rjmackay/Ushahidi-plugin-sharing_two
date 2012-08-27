@@ -19,6 +19,18 @@ class sharing_hooks {
 	 */
 	public function __construct()
 	{
+		// Dirty hack to load this plugin before the current theme, but after default
+		$modules = Kohana::config('core.modules');
+		$sharing_path = PLUGINPATH.'sharing_two';
+		unset($modules[array_search($sharing_path, $modules)]);
+		$d_index = array_search(THEMEPATH."default", $modules);
+		$modules = array_merge(
+			array_slice($modules, 0, $d_index),
+			array($sharing_path),
+			array_slice($modules, $d_index)
+		);
+		Kohana::config_set('core.modules', $modules);
+		
 		// Try to alter routing now
 		Sharing::routing();
 		
@@ -50,6 +62,12 @@ class sharing_hooks {
 			// Quick hack to set default sharing value
 			! isset($_GET['sharing']) ? $_GET['sharing'] = Kohana::config('sharing_two.default_sharing_filter') : null;
 			
+			if (strripos(Router::$current_uri, 'reports') === 0)
+			{
+				Event::add('ushahidi_filter.get_incidents_sql', array('Sharing', 'get_incidents_sql'));
+				Event::add('ushahidi_filter.fetch_incidents_set_params', array('Sharing', 'fetch_incidents_set_params'));
+			}
+
 			//Event::add('ushahidi_filter.json_alter_markers', array($this, 'json_alter_markers'));
 			//Event::add('ushahidi_filter.json_replace_markers', array($this, 'json_replace_markers'));
 		}

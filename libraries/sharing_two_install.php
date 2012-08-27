@@ -75,6 +75,33 @@ class Sharing_two_Install {
 			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Stores shared reports media'
 			");
 			
+			// Create view for querying
+			$this->db->query("
+			CREATE OR REPLACE ALGORITHM=UNDEFINED DEFINER=CURRENT_USER SQL SECURITY INVOKER VIEW `sharing_combined_incident` AS
+				SELECT `incident`.`id` AS `id`,
+					`incident`.`incident_title` AS `incident_title`,
+					`incident`.`incident_description` AS `incident_description`,
+					`incident`.`incident_date` AS `incident_date`,
+					`incident`.`incident_mode` AS `incident_mode`,
+					`incident`.`location_id` AS `location_id`,
+					`incident`.`incident_active` AS `incident_active`,
+					`incident`.`incident_verified` AS `incident_verified`,
+					'main' AS `source`
+				FROM `incident`
+				UNION
+				SELECT
+					`sharing_incident`.`id` AS `id`,
+					`sharing_incident`.`incident_title` AS `incident_title`,
+					`sharing_incident`.`incident_description` AS `incident_description`,
+					`sharing_incident`.`incident_date` AS `incident_date`,
+					`sharing_incident`.`incident_mode` AS `incident_mode`,
+					`sharing_incident`.`location_id` AS `location_id`,
+					`sharing_incident`.`incident_active` AS `incident_active`,
+					`sharing_incident`.`incident_verified` AS `incident_verified`,
+					`sharing_incident`.`sharing_site_id` AS `source`
+				FROM `sharing_incident`
+			");
+			
 			//Dump the sharing scheduler item from bundled SQL dump file
 			$this->db->query("DELETE FROM `".Kohana::config('database.default.table_prefix')."scheduler` where scheduler_name = 'Sharing' ");
 			

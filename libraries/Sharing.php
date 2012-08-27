@@ -123,4 +123,41 @@ class Sharing {
 			Event::$data = $markers;
 		}
 	}
+	
+	/**
+	 * Callback for ushahidi_filter.fetch_incidents_set_params
+	 * Add filter for source to incidents query
+	 */
+	public function fetch_incidents_set_params()
+	{
+		$params = Event::$data;
+		
+		if ($_GET['sharing'] == 'main')
+		{
+			$params[] = "i.source = 'main'";
+		}
+		elseif (intval($_GET['sharing']))
+		{
+			$sharing = intval($_GET['sharing']);
+			$params[] = "i.source = '$sharing'";
+		}
+		
+		Event::$data = $params;
+	}
+	
+	/*
+	 * Callback for ushahidi_filter.get_incidents_sql
+	 * Swap incidents table for combined incident view
+	 */
+	public function get_incidents_sql()
+	{
+		$sql = Event::$data;
+		
+		$sql = str_replace('incident i ', 'sharing_combined_incident i ', $sql);
+		
+		$sql = str_replace('i.id incident_id', 'i.id incident_id, i.source ', $sql);
+		
+		
+		Event::$data = $sql;
+	}
 }
