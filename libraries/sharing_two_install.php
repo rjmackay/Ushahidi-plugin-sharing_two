@@ -7,7 +7,7 @@
  * @copyright  (c) 2008 Ushahidi Team
  * @license    http://www.ushahidi.com/license.html
  */
-class Sharing_Install {
+class Sharing_two_Install {
 
 	/**
 	 * Constructor to load the shared database library
@@ -33,21 +33,48 @@ class Sharing_Install {
 				`site_color` varchar(20) DEFAULT 'CC0000' COMMENT 'color that shows the shared reports',
 				`site_active` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'sharing active or inactive ',
 				PRIMARY KEY (id)
-			);");
+			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Stores sites we are getting shared reports from'
+			");
 
 			$this->db->query("
 			CREATE TABLE IF NOT EXISTS `".Kohana::config('database.default.table_prefix')."sharing_incident`
 			(
 				`id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				`location_id` bigint(20) unsigned NOT NULL,
 				`sharing_site_id` INT UNSIGNED NOT NULL,
 				`remote_incident_id` BIGINT(20) UNSIGNED NOT NULL,
+				`updated` datetime DEFAULT NULL,
 				`incident_title` varchar(255) NOT NULL COMMENT 'title of the report',
-				`latitude` double NOT NULL COMMENT 'latitude of the report',
-				`longitude` double NOT NULL COMMENT 'longitude of the report',
+				`incident_description` longtext,
 				`incident_date` datetime DEFAULT NULL,
-				PRIMARY KEY (id)
-			);");
+				`incident_mode` tinyint(4) NOT NULL DEFAULT '1' COMMENT '1 - WEB, 2 - SMS, 3 - EMAIL, 4 - TWITTER',
+				`incident_active` tinyint(4) NOT NULL DEFAULT '0',
+				`incident_verified` tinyint(4) NOT NULL DEFAULT '0',
+				PRIMARY KEY (id),
+				KEY `location_id` (`location_id`)
+			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Stores shared reports'
+			");
 
+			$this->db->query("
+			CREATE TABLE IF NOT EXISTS `".Kohana::config('database.default.table_prefix')."sharing_incident_category` (
+			  `id` int(11) NOT NULL AUTO_INCREMENT,
+			  `sharing_incident_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+			  `category_id` int(11) unsigned NOT NULL DEFAULT '5',
+			  PRIMARY KEY (`id`),
+			  UNIQUE KEY `sharing_incident_category_ids` (`sharing_incident_id`,`category_id`)
+			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Stores shared reports categories'
+			");
+
+			$this->db->query("
+			CREATE TABLE IF NOT EXISTS `".Kohana::config('database.default.table_prefix')."sharing_incident_media` (
+			  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+			  `sharing_incident_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+			  `media_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+			  PRIMARY KEY (`id`),
+			  UNIQUE KEY `sharing_incident_media_ids` (`sharing_incident_id`,`media_id`)
+			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Stores shared reports media'
+			");
+			
 			//Dump the sharing scheduler item from bundled SQL dump file
 			$this->db->query("DELETE FROM `".Kohana::config('database.default.table_prefix')."scheduler` where scheduler_name = 'Sharing' ");
 			

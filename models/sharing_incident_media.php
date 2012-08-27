@@ -1,7 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
 /**
-* Model for Sharing_Incident
+ * Model for media for each sharing incidents
  *
  * PHP version 5
  * LICENSE: This source file is subject to LGPL license 
@@ -14,15 +14,10 @@
  * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
  */
 
-class Sharing_Incident_Model extends ORM
+class Sharing_Incident_Media_Model extends ORM
 {
-	protected $belongs_to = array('sharing_site');
-	protected $has_one = array('location');
-	protected $has_many = array(
-		'category' => 'sharing_incident_category',
-		'media' => 'sharing_incident_media'
-	);
+	protected $belongs_to = array('sharing_incident', 'media');
 	
 	// Database table name
-	protected $table_name = 'sharing_incident';
+	protected $table_name = 'sharing_incident_media';
 }

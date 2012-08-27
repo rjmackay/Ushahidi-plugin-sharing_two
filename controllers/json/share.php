@@ -51,7 +51,7 @@ class Share_Controller extends Json_Controller {
 					$icon = "";
 					// Retrieve all markers
 					$markers = ORM::factory('sharing_incident')
-									->where('sharing_id', $sharing_id)
+									->where('sharing_site_id', $site->id)
 									->find_all();
 				}
 			}
@@ -93,10 +93,10 @@ class Share_Controller extends Json_Controller {
 		{
 			if (Kohana::config('sharing_two.combine_markers'))
 			{
-			$sharing_markers = ORM::factory('sharing_incident')
-									->find_all();
-			
-			$markers = array_merge($markers->as_array(), $sharing_markers->as_array());
+				$sharing_markers = ORM::factory('sharing_incident')
+						->with('location')
+						->find_all();
+				$markers = array_merge($markers->as_array(), $sharing_markers->as_array());
 			}
 			// Show markers in separate colours and clusters
 			// Probably ALWAYS going to be a bad idea
@@ -111,7 +111,7 @@ class Share_Controller extends Json_Controller {
 				{
 					// Retrieve all markers
 					$sharing_markers = ORM::factory('sharing_incident')
-									->where('sharing_id', $site->id)
+									->where('sharing_site_id', $site->id)
 									->find_all();
 					$sharing_color = $site->sharing_color;
 					$json_features = array_merge($json_features, $this->$function($sharing_markers, $category_id, $sharing_color, ''));
