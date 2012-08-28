@@ -59,8 +59,7 @@ class sharing_hooks {
 			OR stripos(Router::$current_uri, 'reports') === 0
 		)
 		{
-			// Quick hack to set default sharing value
-			! isset($_GET['sharing']) ? $_GET['sharing'] = Kohana::config('sharing_two.default_sharing_filter') : null;
+			Sharing::process_get_param();
 			
 			if (stripos(Router::$current_uri, 'reports') === 0)
 			{
