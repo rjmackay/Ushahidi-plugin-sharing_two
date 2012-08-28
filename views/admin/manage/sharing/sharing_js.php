@@ -16,12 +16,12 @@
  */
 ?>
 // Sharing JS
-function fillFields(id, sharing_url, sharing_name, sharing_color)
+function fillFields(id, site_url, site_name, site_color)
 {
-	$("#sharing_id").attr("value", decodeURIComponent(id));
-	$("#sharing_name").attr("value", decodeURIComponent(sharing_name));
-	$("#sharing_url").attr("value", decodeURIComponent(sharing_url));
-	$("#sharing_color").attr("value", decodeURIComponent(sharing_color));
+	$("#site_id").attr("value", decodeURIComponent(id));
+	$("#site_name").attr("value", decodeURIComponent(site_name));
+	$("#site_url").attr("value", decodeURIComponent(site_url));
+	$("#site_color").attr("value", decodeURIComponent(site_color));
 }
 
 // Ajax Submission
