@@ -33,6 +33,21 @@ class Share_Controller extends Json_Controller {
 			$icon_object = ORM::factory('media')->find(Kohana::config('settings.default_map_all_icon_id'));
 			$icon = url::convert_uploaded_to_abs($icon_object->media_medium);
 		}
+
+		// Category ID
+		$category_id = (isset($_GET['c']) AND intval($_GET['c']) > 0) ? intval($_GET['c']) : 0;
+		// Get the category colour
+		$cat = FALSE;
+		if (Category_Model::is_valid_category($category_id))
+		{
+			// Get the color & icon
+			$cat = ORM::factory('category', $category_id);
+			$color = $cat->category_color;
+			if ($cat->category_image)
+			{
+				$icon = url::convert_uploaded_to_abs($cat->category_image);
+			}
+		}
 		
 		// Get sharing site info
 		// Quick hack to set default sharing value
@@ -47,27 +62,23 @@ class Share_Controller extends Json_Controller {
 				if ($site->loaded)
 				{
 					$site_url = sharing_helper::clean_url($site->site_url);
-					$color = $site->site_color;
+					// Only set color if all categories, category color overrides site color
+					if (!$cat)
+					{
+						$color = $site->site_color;
+					}
 					$icon = "";
+					
+					$marker_query = ORM::factory('sharing_incident')->with('location');
+					if ($cat)
+					{
+						$marker_query
+							->join('sharing_incident_category', 'sharing_incident_id', 'sharing_incident.id', 'INNER')
+							->where('category_id', $cat->id);
+					}
 					// Retrieve all markers
-					$markers = ORM::factory('sharing_incident')
-									->where('sharing_site_id', $site->id)
-									->find_all();
+					$markers = $marker_query->where('sharing_site_id', $site->id)->find_all();
 				}
-			}
-		}
-
-		// Category ID
-		$category_id = (isset($_GET['c']) AND intval($_GET['c']) > 0) ? intval($_GET['c']) : 0;
-		// Get the category colour
-		if (Category_Model::is_valid_category($category_id))
-		{
-			// Get the color & icon
-			$cat = ORM::factory('category', $category_id);
-			$color = $cat->category_color;
-			if ($cat->category_image)
-			{
-				$icon = url::convert_uploaded_to_abs($cat->category_image);
 			}
 		}
 
@@ -91,32 +102,15 @@ class Share_Controller extends Json_Controller {
 		
 		if ($_GET['sharing'] == 'all')
 		{
-			if (Kohana::config('sharing_two.combine_markers'))
+			$marker_query = ORM::factory('sharing_incident')->with('location');
+			if ($cat)
 			{
-				$sharing_markers = ORM::factory('sharing_incident')
-						->with('location')
-						->find_all();
-				$markers = array_merge($markers->as_array(), $sharing_markers->as_array());
+				$marker_query
+					->join('sharing_incident_category', 'sharing_incident_id', 'sharing_incident.id', 'INNER')
+					->where('category_id', $cat->id);
 			}
-			// Show markers in separate colours and clusters
-			// Probably ALWAYS going to be a bad idea
-			else
-			{
-				// Get geojson features array
-				$function = "{$type}_geojson";
-				
-				$json_features = array();
-				$sites = ORM::factory('sharing')->where('sharing_active', 1)->find_all();
-				foreach ($sites as $site)
-				{
-					// Retrieve all markers
-					$sharing_markers = ORM::factory('sharing_incident')
-									->where('sharing_site_id', $site->id)
-									->find_all();
-					$sharing_color = $site->sharing_color;
-					$json_features = array_merge($json_features, $this->$function($sharing_markers, $category_id, $sharing_color, ''));
-				}
-			}
+			$sharing_markers = $marker_query->find_all();
+			$markers = array_merge($markers->as_array(), $sharing_markers->as_array());
 		}
 		
 		// Get geojson features array

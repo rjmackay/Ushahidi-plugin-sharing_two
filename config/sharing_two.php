@@ -6,13 +6,6 @@
 
 $config = array();
 
-/**
- * Should map markers be combined for all sites
- * or show in different colors
- * (Only applies when filtering to 'all') 
- */
-$config['combine_markers'] = TRUE;
-
 /*
  * Which site to show by default
  * Valid options are:
