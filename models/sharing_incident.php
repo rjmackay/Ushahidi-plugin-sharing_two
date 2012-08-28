@@ -25,4 +25,35 @@ class Sharing_Incident_Model extends ORM
 	
 	// Database table name
 	protected $table_name = 'sharing_incident';
+	
+	protected $load_with = array('sharing_site');
+	
+	/**
+	 * Get url of this incident
+	 * @return string
+	 **/
+	public function url()
+	{
+		return self::get_url($this);
+	}
+	
+	/**
+	 * Get url for the incident object passed
+	 * @param object
+	 * @return string
+	 **/
+	public static function get_url($incident)
+	{
+		if (is_object($incident))
+		{
+			$id = $incident->remote_incident_id;
+			$site = isset($incident->sharing_site) ? $incident->sharing_site : ORM::factory('sharing_site', $incident->sharing_site_id);
+		}
+		else
+		{
+			return false;
+		}
+		
+		return $site->site_url."/reports/view/$id";
+	}
 }
