@@ -50,7 +50,7 @@
 					<?php print form::open(NULL,array('id' => 'sharingListing',
 					 	'name' => 'sharingListing')); ?>
 						<input type="hidden" name="action" id="action" value="">
-						<input type="hidden" name="sharing_id" id="sharing_id_action" value="">
+						<input type="hidden" name="site_id" id="site_id_action" value="">
 						<div class="table-holder">
 							<table class="table">
 								<thead>
@@ -80,43 +80,43 @@
 										</tr>
 									<?php	
 									}
-									foreach ($shares as $share)
+									foreach ($sites as $site)
 									{
-										$sharing_id = $share->id;
-										$sharing_name = $share->sharing_name;
-										$sharing_color = $share->sharing_color;
-										$sharing_url = $share->sharing_url;
-										$sharing_active = $share->sharing_active;
+										$site_id = $site->id;
+										$site_name = $site->site_name;
+										$site_color = $site->site_color;
+										$site_url = $site->site_url;
+										$site_active = $site->site_active;
 										?>
 										<tr>
 											<td class="col-1">&nbsp;</td>
 											<td class="col-2">
 												<div class="post">
-													<h4><?php echo $sharing_name; ?></h4>
+													<h4><?php echo $site_name; ?></h4>
 												</div>
 												<ul class="links">
 													<?php
-													if($sharing_url)
+													if($site_url)
 													{
-														?><li class="none-separator"><strong><?php echo text::auto_link($sharing_url); ?></strong></li><?php
+														?><li class="none-separator"><strong><?php echo text::auto_link($site_url); ?></strong></li><?php
 													}
 													?>
 												</ul>
 											</td>
 											<td class="col-3">
-											<?php echo "<img src=\"".url::base()."swatch/?c=".$sharing_color."&w=30&h=30\">"; ?>
+											<?php echo "<img src=\"".url::base()."swatch/?c=".$site_color."&w=30&h=30\">"; ?>
 											</td>
 											<td class="col-4">
 												<ul>
-													<li class="none-separator"><a href="#add" onClick="fillFields('<?php echo(rawurlencode($sharing_id)); ?>','<?php echo(rawurlencode($sharing_url)); ?>','<?php echo(rawurlencode($sharing_name)); ?>','<?php echo(rawurlencode($sharing_color)); ?>')"><?php echo Kohana::lang('ui_main.edit');?></a></li>
+													<li class="none-separator"><a href="#add" onClick="fillFields('<?php echo(rawurlencode($site_id)); ?>','<?php echo(rawurlencode($site_url)); ?>','<?php echo(rawurlencode($site_name)); ?>','<?php echo(rawurlencode($site_color)); ?>')"><?php echo Kohana::lang('ui_main.edit');?></a></li>
 													<li class="none-separator">
-													<?php if($sharing_active) {?>
-													<a href="javascript:sharingAction('h','HIDE',<?php echo rawurlencode($sharing_id);?>)" class="status_yes"><?php echo Kohana::lang('ui_main.visible');?></a>
+													<?php if($site_active) {?>
+													<a href="javascript:sharingAction('h','HIDE',<?php echo rawurlencode($site_id);?>)" class="status_yes"><?php echo Kohana::lang('ui_main.visible');?></a>
 													<?php } else {?>
-													<a href="javascript:sharingAction('v','SHOW',<?php echo rawurlencode($sharing_id);?>)" class="status_yes"><?php echo Kohana::lang('ui_main.hidden');?></a>
+													<a href="javascript:sharingAction('v','SHOW',<?php echo rawurlencode($site_id);?>)" class="status_yes"><?php echo Kohana::lang('ui_main.hidden');?></a>
 													<?php } ?>
 													</li>
-<li><a href="javascript:sharingAction('d','DELETE','<?php echo(rawurlencode($sharing_id)); ?>')" class="del"><?php echo Kohana::lang('ui_main.delete');?></a></li>
+<li><a href="javascript:sharingAction('d','DELETE','<?php echo(rawurlencode($site_id)); ?>')" class="del"><?php echo Kohana::lang('ui_main.delete');?></a></li>
 												</ul>
 											</td>
 										</tr>
@@ -139,29 +139,29 @@
 					<!-- tab -->
 					<div class="tab">
 						<?php print form::open(NULL,array('id' => 'sharingMain', 'name' => 'sharingMain')); ?>
-						<input type="hidden" id="sharing_id" 
-							name="sharing_id" value="" />
+						<input type="hidden" id="site_id" 
+							name="site_id" value="" />
 						<input type="hidden" name="action" 
 							id="action" value="a"/>
 						<div class="tab_form_item">
 							<strong><?php echo Kohana::lang('ui_main.name');?>:</strong><br />
-							<?php print form::input('sharing_name', '', ' class="text"'); ?>
+							<?php print form::input('site_name', '', ' class="text"'); ?>
 						</div>
 						<div class="tab_form_item">
 							<strong><?php echo Kohana::lang('ui_main.site_url');?>:</strong><br />
-							<?php print form::input('sharing_url', '', ' class="text long"'); ?>
+							<?php print form::input('site_url', '', ' class="text long"'); ?>
 						</div>
 						<div class="tab_form_item">
 							<strong><?php echo Kohana::lang('ui_main.color');?>:</strong><br />
-							<?php print form::input('sharing_color', '', ' class="text"'); ?>
+							<?php print form::input('site_color', '', ' class="text"'); ?>
 							<script type="text/javascript" charset="utf-8">
 								$(document).ready(function() {
-									$('#sharing_color').ColorPicker({
+									$('#site_color').ColorPicker({
 										onSubmit: function(hsb, hex, rgb) {
-											$('#sharing_color').val(hex);
+											$('#site_color').val(hex);
 										},
 										onChange: function(hsb, hex, rgb) {
-											$('#sharing_color').val(hex);
+											$('#site_color').val(hex);
 										},
 										onBeforeShow: function () {
 											$(this).ColorPickerSetColor(this.value);

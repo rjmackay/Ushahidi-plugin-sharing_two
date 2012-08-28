@@ -35,45 +35,20 @@ class Sharing_Controller extends Admin_Controller
 		$this->template->content = new View('admin/manage/sharing/main');
 		$this->template->content->title = Kohana::lang('ui_admin.settings');
 		
-		// What to display
-		if (isset($_GET['status']) && !empty($_GET['status']))
-		{
-			$status = $_GET['status'];
-			
-			if (strtolower($status) == 's')
-			{
-				$filter = 'sharing_type = 2';
-			}
-			elseif (strtolower($status) == 'r')
-			{
-				$filter = 'sharing_type = 1';
-			}
-			else
-			{
-				$status = "0";
-				$filter = '1=1';
-			}
-		}
-		else
-		{
-			$status = "0";
-			$filter = "1=1";
-		}	
-		
 		// Setup and initialize form field names
 		$form = array
 	    (
-			'sharing_name' => '',
-			'sharing_url' => '',
-			'sharing_color' => '',
-			'sharing_active' => ''
+			'site_name' => '',
+			'site_url' => '',
+			'site_color' => '',
+			'site_active' => ''
 	    );
 		//  Copy the form as errors, so the errors will be stored with keys corresponding to the form field names
 	    $errors = $form;
 		$form_error = FALSE;
 		$form_saved = FALSE;
 		$form_action = "";
-		$sharing_id = "";
+		$site_id = "";
 		
 		
 		if( $_POST ) 
@@ -87,24 +62,24 @@ class Sharing_Controller extends Admin_Controller
 			if ($post->action == 'a')
 			{
 				// Clean the url before we do anything else
-				$post->sharing_url = sharing_helper::clean_url($post->sharing_url);
+				$post->site_url = sharing_helper::clean_url($post->site_url);
 				// Add some rules, the input field, followed by a list of checks, carried out in order
-				$post->add_rules('sharing_name','required', 'length[3,150]');
-				$post->add_rules('sharing_url','required', 'url', 'length[3,255]');
-				$post->add_rules('sharing_color','required', 'length[6,6]');
-				$post->add_callbacks('sharing_url', array($this,'url_exists_chk'));
+				$post->add_rules('site_name','required', 'length[3,150]');
+				$post->add_rules('site_url','required', 'url', 'length[3,255]');
+				$post->add_rules('site_color','required', 'length[6,6]');
+				$post->add_callbacks('site_url', array($this,'url_exists_chk'));
 			}
 			
 			if( $post->validate() )
 			{
-				$sharing_id = $post->sharing_id;
+				$site_id = $post->site_id;
 				
-				$sharing = new Sharing_Model($sharing_id);
+				$site = new Sharing_Site_Model($site_id);
 				
 				// Delete Action
 				if ( $post->action == 'd' )
 				{ 
-					$sharing->delete( $sharing_id );
+					$site->delete( $site_id );
 					$form_saved = TRUE;
 					$form_action = utf8::strtoupper(Kohana::lang('ui_admin.deleted'));
 				}
@@ -112,10 +87,10 @@ class Sharing_Controller extends Admin_Controller
 				// Hide Action
 				else if ($post->action=='h')
 				{
-					if($sharing->loaded)
+					if($site->loaded)
 					{
-						$sharing->sharing_active = 0;
-						$sharing->save();
+						$site->site_active = 0;
+						$site->save();
 						$form_saved = TRUE;
 						$form_action = utf8::strtoupper(Kohana::lang('ui_main.hidden'));
 					}	
@@ -124,10 +99,10 @@ class Sharing_Controller extends Admin_Controller
 				// Show Action
 				else if ($post->action == 'v')
 				{ 
-					if ($sharing->loaded)
+					if ($site->loaded)
 					{
-						$sharing->sharing_active = 1;
-						$sharing->save();
+						$site->site_active = 1;
+						$site->save();
 						$form_saved = TRUE;
 						$form_action = utf8::strtoupper(Kohana::lang('ui_admin.shown'));
 					}
@@ -138,10 +113,10 @@ class Sharing_Controller extends Admin_Controller
 				// See validation code above.
 				elseif ($post->action == 'a')
 				{ 
-					$sharing->sharing_name = $post->sharing_name;
-					$sharing->sharing_url = $post->sharing_url;
-					$sharing->sharing_color = $post->sharing_color;
-					$sharing->save();
+					$site->site_name = $post->site_name;
+					$site->site_url = $post->site_url;
+					$site->site_color = $post->site_color;
+					$site->save();
 					
 					$form_saved = TRUE;
 					$form_action = utf8::strtoupper(Kohana::lang('ui_admin.created_edited'));
@@ -163,12 +138,11 @@ class Sharing_Controller extends Admin_Controller
 		$pagination = new Pagination(array(
 			'query_string' => 'page',
 			'items_per_page' => $this->items_per_page,
-			'total_items'  => ORM::factory('sharing')->where($filter)->count_all()
+			'total_items'  => ORM::factory('sharing_site')->count_all()
 		));
 		
-		$shares = ORM::factory('sharing')
-			->where($filter)
-			->orderby('sharing_name', 'asc')
+		$sites = ORM::factory('sharing_site')
+			->orderby('site_name', 'asc')
 			->find_all($this->items_per_page,  $pagination->sql_offset);
 		
 		$this->template->content->form_error = $form_error;
@@ -176,11 +150,9 @@ class Sharing_Controller extends Admin_Controller
 		$this->template->content->form_action = $form_action;
 		$this->template->content->pagination = $pagination;
 		$this->template->content->total_items = $pagination->total_items;
-		$this->template->content->shares = $shares;
+		$this->template->content->sites = $sites;
 		$this->template->content->errors = $errors;
 		
-		// Status Tab
-		$this->template->content->status = $status;
 		
 		// Javascript Header
 		$this->template->colorpicker_enabled = TRUE;
@@ -195,16 +167,16 @@ class Sharing_Controller extends Admin_Controller
 	public function url_exists_chk(Validation $post)
 	{
 		// If add->rules validation found any errors, get me out of here!
-		if (array_key_exists('sharing_url', $post->errors()))
+		if (array_key_exists('site_url', $post->errors()))
 			return;
 		
-		$share_exists = ORM::factory('sharing')
-			->where('sharing_url', $post->sharing_url)
+		$share_exists = ORM::factory('sharing_site')
+			->where('site_url', $post->site_url)
 			->find();
 		
 		if ($share_exists->loaded)
 		{
-			$post->add_error( 'sharing_url', 'exists');
+			$post->add_error( 'site_url', 'exists');
 		}
 	}
 }
