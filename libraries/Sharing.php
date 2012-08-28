@@ -142,12 +142,19 @@ class Sharing {
 		{
 			$params[] = "i.source = 'main'";
 		}
-		elseif (intval($_GET['sharing']))
+		elseif ($_GET['sharing'] != 'all' AND $_GET['sharing'] != array('all'))
 		{
-			$sharing = intval($_GET['sharing']);
-			$params[] = "i.source = '$sharing'";
+			$sharing = $_GET['sharing'];
+			// Convert to array
+			if (! is_array($sharing))
+			{
+				$sharing = array($sharing);
+			}
+			
+			// escape and implode values
+			$sharing = '('.implode(', ', array_map(array(Database::instance(), 'escape'), $_GET['sharing'])).')';
+			$params[] = "i.source IN $sharing";
 		}
-		
 		Event::$data = $params;
 	}
 	
@@ -165,5 +172,19 @@ class Sharing {
 		
 		
 		Event::$data = $sql;
+	}
+	
+	public function report_filters_ui()
+	{
+		$filter = View::factory('reports/sharing_filter');
+		$filter->sites = ORM::factory('sharing_site')
+					->where('site_active', 1)
+					->find_all();
+		$filter->render(TRUE);
+	}
+	
+	public function report_js_filterReportsAction()
+	{
+		View::factory('reports/sharing_filter_js')->render(TRUE);
 	}
 }
