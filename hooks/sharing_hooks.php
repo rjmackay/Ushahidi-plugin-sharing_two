@@ -46,7 +46,7 @@ class sharing_hooks {
 	public function add()
 	{
 		// Only add the events if we are on that controller
-		if (strripos(Router::$current_uri, "admin/manage") !== false)
+		if (stripos(Router::$current_uri, "admin/manage") !== false)
 		{
 			Event::add('ushahidi_action.nav_admin_manage', array('Sharing','sharing_admin_nav'));
 		}
@@ -55,14 +55,14 @@ class sharing_hooks {
 			Event::add('ushahidi_action.header_scripts', array('Sharing', 'sharing_bar_js'));
 			Event::add('ushahidi_action.main_sidebar_post_filters', array('Sharing', 'sharing_bar'));
 		}
-		elseif (strripos(Router::$current_uri, 'json') === 0
-			OR strripos(Router::$current_uri, 'reports') === 0
+		elseif (stripos(Router::$current_uri, 'json') === 0
+			OR stripos(Router::$current_uri, 'reports') === 0
 		)
 		{
 			// Quick hack to set default sharing value
 			! isset($_GET['sharing']) ? $_GET['sharing'] = Kohana::config('sharing_two.default_sharing_filter') : null;
 			
-			if (strripos(Router::$current_uri, 'reports') === 0)
+			if (stripos(Router::$current_uri, 'reports') === 0)
 			{
 				Event::add('ushahidi_filter.get_incidents_sql', array('Sharing', 'get_incidents_sql'));
 				Event::add('ushahidi_filter.fetch_incidents_set_params', array('Sharing', 'fetch_incidents_set_params'));
