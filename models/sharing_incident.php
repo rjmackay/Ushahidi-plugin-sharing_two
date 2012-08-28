@@ -26,8 +26,6 @@ class Sharing_Incident_Model extends ORM
 	// Database table name
 	protected $table_name = 'sharing_incident';
 	
-	protected $load_with = array('sharing_site');
-	
 	/**
 	 * Get url of this incident
 	 * @return string
