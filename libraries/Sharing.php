@@ -26,7 +26,7 @@ class Sharing {
 	public static function process_get_param()
 	{
 		// Quick hack to set default sharing value
-		! isset($_GET['sharing']) ? $_GET['sharing'] = array(Kohana::config('sharing_two.default_sharing_filter')) : null;
+		! isset($_GET['sharing']) ? $_GET['sharing'] = Kohana::config('sharing_two.default_sharing_filter') : null;
 	}
 	
 
