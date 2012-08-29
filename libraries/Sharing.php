@@ -174,11 +174,11 @@ class Sharing {
 				$media_filter_key = array_search('i.id IN (SELECT DISTINCT incident_id FROM '.Kohana::config('database.default.table_prefix').'media WHERE media_type IN ('.$media_types.'))', $params);
 				$params[$media_filter_key] = "
 				(
-					(i.id IN (SELECT DISTINCT incident_id FROM media
+					(i.id IN (SELECT DISTINCT incident_id FROM ".Kohana::config('database.default.table_prefix')."media
 					WHERE media_type IN (".$media_types.")) AND i.source = 'main')
 				OR
-					(i.id IN (SELECT DISTINCT sharing_incident_id FROM sharing_incident_media sim
-					LEFT JOIN media ON (sim.media_id = media.id)
+					(i.id IN (SELECT DISTINCT sharing_incident_id FROM ".Kohana::config('database.default.table_prefix')."sharing_incident_media sim
+					LEFT JOIN ".Kohana::config('database.default.table_prefix')."media ON (sim.media_id = media.id)
 					WHERE media_type IN (".$media_types.")) AND i.source != 'main')
 				)";
 			}
@@ -195,11 +195,14 @@ class Sharing {
 	{
 		$sql = Event::$data;
 		
-		$sql = str_replace('incident i ', 'sharing_combined_incident i ', $sql);
+		$sql = str_replace(Kohana::config('database.default.table_prefix').'incident i ', Kohana::config('database.default.table_prefix').'sharing_combined_incident i ', $sql);
 		
 		$sql = str_replace('i.id incident_id', 'i.id incident_id, i.source ', $sql);
 		
-		$sql = str_replace("incident_category ic ON (ic.incident_id = i.id) ", "sharing_combined_incident_category ic ON ((ic.incident_id = i.id AND i.source = 'main') OR (ic.sharing_incident_id = i.id AND i.source != 'main')) ", $sql);
+		$sql = str_replace(Kohana::config('database.default.table_prefix')."incident_category ic ON (ic.incident_id = i.id) ",
+			Kohana::config('database.default.table_prefix')."sharing_combined_incident_category ic ON ((ic.incident_id = i.id AND i.source = 'main') OR (ic.sharing_incident_id = i.id AND i.source != 'main')) ",
+			$sql
+		);
 		
 		Event::$data = $sql;
 	}
