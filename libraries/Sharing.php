@@ -156,6 +156,34 @@ class Sharing {
 			$params[] = "i.source IN $sharing";
 		}
 		
+		if (isset($_GET['m']))
+		{
+			$media_types = $_GET['m'];
+			if (!is_array($media_types))
+			{
+				$media_types = explode(',',$media_types);
+			}
+			
+			// An array of media filters has been specified
+			// Validate the media types
+			$media_types = array_map('intval', $media_types);
+			
+			if (count($media_types) > 0)
+			{
+				$media_types = implode(",", $media_types);
+				$media_filter_key = array_search('i.id IN (SELECT DISTINCT incident_id FROM '.Kohana::config('database.default.table_prefix').'media WHERE media_type IN ('.$media_types.'))', $params);
+				$params[$media_filter_key] = "
+				(
+					(i.id IN (SELECT DISTINCT incident_id FROM media
+					WHERE media_type IN (".$media_types.")) AND i.source = 'main')
+				OR
+					(i.id IN (SELECT DISTINCT sharing_incident_id FROM sharing_incident_media sim
+					LEFT JOIN media ON (sim.media_id = media.id)
+					WHERE media_type IN (".$media_types.")) AND i.source != 'main')
+				)";
+			}
+		}
+		
 		Event::$data = $params;
 	}
 	
