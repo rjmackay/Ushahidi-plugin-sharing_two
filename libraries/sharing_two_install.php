@@ -102,6 +102,20 @@ class Sharing_two_Install {
 				FROM `sharing_incident`
 			");
 			
+			$this->db->query("
+			CREATE OR REPLACE ALGORITHM=UNDEFINED DEFINER=CURRENT_USER SQL SECURITY INVOKER VIEW `sharing_combined_incident_category` AS
+				SELECT `incident_category`.`incident_id` AS `incident_id`,
+					NULL AS `sharing_incident_id`,
+					`incident_category`.`category_id` AS `category_id`
+				FROM `incident_category`
+				UNION
+				SELECT
+					NULL AS `incident_id`,
+					`sharing_incident_category`.`sharing_incident_id` AS `sharing_incident_id`,
+                  `sharing_incident_category`.`category_id` AS `category_id`
+				FROM `sharing_incident_category`
+			");
+			
 			//Dump the sharing scheduler item from bundled SQL dump file
 			$this->db->query("DELETE FROM `".Kohana::config('database.default.table_prefix')."scheduler` where scheduler_name = 'Sharing' ");
 			

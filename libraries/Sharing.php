@@ -170,6 +170,7 @@ class Sharing {
 		
 		$sql = str_replace('i.id incident_id', 'i.id incident_id, i.source ', $sql);
 		
+		$sql = str_replace("incident_category ic ON (ic.incident_id = i.id) ", "sharing_combined_incident_category ic ON ((ic.incident_id = i.id AND i.source = 'main') OR (ic.sharing_incident_id = i.id AND i.source != 'main')) ", $sql);
 		
 		Event::$data = $sql;
 	}
