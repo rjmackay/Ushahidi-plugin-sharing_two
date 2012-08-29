@@ -155,6 +155,7 @@ class Sharing {
 			$sharing = '('.implode(', ', array_map(array(Database::instance(), 'escape'), $_GET['sharing'])).')';
 			$params[] = "i.source IN $sharing";
 		}
+		
 		Event::$data = $params;
 	}
 	
@@ -175,6 +176,10 @@ class Sharing {
 		Event::$data = $sql;
 	}
 	
+	/**
+	 * Callback for ushahidi_action.report_filters_ui
+	 * Render sharing site filter
+	 */
 	public function report_filters_ui()
 	{
 		$filter = View::factory('reports/sharing_filter');
@@ -184,6 +189,10 @@ class Sharing {
 		$filter->render(TRUE);
 	}
 	
+	/**
+	 * Callback for ushahidi_action.report_js_filterReportsAction
+	 * Render js for handling sharing site filter
+	 */
 	public function report_js_filterReportsAction()
 	{
 		View::factory('reports/sharing_filter_js')->render(TRUE);
