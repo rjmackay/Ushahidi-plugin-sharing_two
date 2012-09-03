@@ -69,12 +69,13 @@ class Share_Controller extends Json_Controller {
 					}
 					$icon = "";
 					
-					$marker_query = ORM::factory('sharing_incident')->with('location');
+					$marker_query = ORM::factory('sharing_incident')->select('DISTINCT sharing_incident.id', 'sharing_incident.*')->with('location');
 					if ($cat)
 					{
 						$marker_query
 							->join('sharing_incident_category', 'sharing_incident_id', 'sharing_incident.id', 'INNER')
-							->where('category_id', $cat->id);
+							->join('category', 'category.id', 'sharing_incident_category.category_id', 'INNER')
+							->where('category.id', $cat->id)->orwhere('category.parent_id', $cat->id);
 					}
 					// Retrieve all markers
 					$markers = $marker_query->where('sharing_site_id', $site->id)->find_all();
@@ -102,12 +103,13 @@ class Share_Controller extends Json_Controller {
 		
 		if ($_GET['sharing'] == 'all')
 		{
-			$marker_query = ORM::factory('sharing_incident')->with('location');
+			$marker_query = ORM::factory('sharing_incident')->select('DISTINCT sharing_incident.id', 'sharing_incident.*')->with('location');
 			if ($cat)
 			{
 				$marker_query
 					->join('sharing_incident_category', 'sharing_incident_id', 'sharing_incident.id', 'INNER')
-					->where('category_id', $cat->id);
+					->join('category', 'category.id', 'sharing_incident_category.category_id', 'INNER')
+					->where('category.id', $cat->id)->orwhere('category.parent_id', $cat->id);
 			}
 			$sharing_markers = $marker_query->find_all();
 			$markers = array_merge($markers->as_array(), $sharing_markers->as_array());
