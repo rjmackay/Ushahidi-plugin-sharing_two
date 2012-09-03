@@ -152,7 +152,7 @@ class Sharing {
 			}
 			
 			// escape and implode values
-			$sharing = '('.implode(', ', array_map(array(Database::instance(), 'escape'), $_GET['sharing'])).')';
+			$sharing = '('.implode(', ', array_map(array(Database::instance(), 'escape'), $sharing)).')';
 			$params[] = "i.source IN $sharing";
 		}
 		
