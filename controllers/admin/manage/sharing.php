@@ -129,7 +129,7 @@ class Sharing_Controller extends Admin_Controller
 				$form = arr::overwrite($form, $post->as_array());
 
 				// Populate the error fields, if any
-				$errors = arr::overwrite($errors, $post->errors('sharing'));
+				$errors = arr::merge($errors, $post->errors('sharing_two'));
 				$form_error = TRUE;
 			}
 		}
@@ -170,8 +170,16 @@ class Sharing_Controller extends Admin_Controller
 		if (array_key_exists('site_url', $post->errors()))
 			return;
 		
+		if (!isset($post->site_id))
+		{
+			$post->site_id = 0;
+		}
+		
 		$share_exists = ORM::factory('sharing_site')
-			->where('site_url', $post->site_url)
+			->where(array(
+				'site_url' => $post->site_url,
+				'id !=' => $post->site_id
+			))
 			->find();
 		
 		if ($share_exists->loaded)

@@ -104,15 +104,15 @@
 												</ul>
 											</td>
 											<td class="col-3">
-											<?php echo "<img src=\"".url::base()."swatch/?c=".$site_color."&w=30&h=30\">"; ?>
+												<span class="swatch" style="background-color: #<?php echo $site_color ?>;">&nbsp;</span>
 											</td>
 											<td class="col-4">
 												<ul>
 													<li class="none-separator"><a href="#add" onClick="fillFields('<?php echo(rawurlencode($site_id)); ?>','<?php echo(rawurlencode($site_url)); ?>','<?php echo(rawurlencode($site_name)); ?>','<?php echo(rawurlencode($site_color)); ?>')"><?php echo Kohana::lang('ui_main.edit');?></a></li>
 													<li class="none-separator">
-													<?php if($site_active) {?>
+													<?php if($site_active) { ?>
 													<a href="javascript:sharingAction('h','HIDE',<?php echo rawurlencode($site_id);?>)" class="status_yes"><?php echo Kohana::lang('ui_main.visible');?></a>
-													<?php } else {?>
+													<?php } else { ?>
 													<a href="javascript:sharingAction('v','SHOW',<?php echo rawurlencode($site_id);?>)" class="status_yes"><?php echo Kohana::lang('ui_main.hidden');?></a>
 													<?php } ?>
 													</li>
