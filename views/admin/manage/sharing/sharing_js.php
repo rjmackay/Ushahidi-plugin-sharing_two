@@ -31,7 +31,7 @@ function sharingAction ( action, confirmAction, id )
 	var answer = confirm('<?php echo Kohana::lang('ui_admin.are_you_sure_you_want_to'); ?> ' + confirmAction + '?')
 	if (answer){
 		// Set Category ID
-		$("#sharing_id_action").attr("value", id);
+		$("#site_id_action").attr("value", id);
 		// Set Submit Type
 		$("#action").attr("value", action);		
 		// Submit Form
