@@ -17,7 +17,7 @@ class Sharing {
 	
 	public static function routing()
 	{
-		if (stripos(Router::$current_uri, 'json') !== FALSE)
+		if (Router::$current_uri == 'json/index' OR Router::$current_uri == 'json/cluster' OR Router::$current_uri == 'json')
 		{
 			Router::$current_uri = str_replace('json','json/share', Router::$current_uri);
 		}

@@ -51,7 +51,7 @@
 					$incident_url = url::site("reports/view/$incident_id");
 					if ($incident->source != 'main')
 					{
-						$incident_url = $site_urls[$incident->source]."/reports/view/$incident_id";
+						$incident_url = url::site("reports/sharing/view/$incident_id");
 					}
 					//$incident_category = $incident->incident_category;
 					// Trim to 150 characters without cutting words

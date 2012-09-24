@@ -75,6 +75,16 @@ class Sharing_two_Install {
 			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Stores shared reports media'
 			");
 			
+			$this->db->query("
+			CREATE TABLE `".Kohana::config('database.default.table_prefix')."sharing_incident_comment` (
+			  `id` int(11) NOT NULL AUTO_INCREMENT,
+			  `sharing_incident_id` bigint(20) unsigned NOT NULL DEFAULT '0',
+			  `comment_id` int(11) unsigned NOT NULL DEFAULT '5',
+			  PRIMARY KEY (`id`),
+			  UNIQUE KEY `sharing_incident_comment_ids` (`sharing_incident_id`,`comment_id`)
+			) ENGINE=MyISAM AUTO_INCREMENT=14064 DEFAULT CHARSET=utf8 COMMENT='Stores shared reports comments';
+			");
+			
 			// Create view for querying
 			$this->db->query("
 			CREATE OR REPLACE ALGORITHM=UNDEFINED DEFINER=CURRENT_USER SQL SECURITY INVOKER VIEW `sharing_combined_incident` AS
