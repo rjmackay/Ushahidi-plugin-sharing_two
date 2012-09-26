@@ -21,13 +21,18 @@ Incompatible with: Sharing, Actionable
 
 Config options:
 * Default to showing all sites reports / showing this sites reports
-* Show reports in this site / Redirect rpeorts to origin site
+* Show reports in this site / Redirect reports to origin site
 * Ignore reports not in match category / Create missing categories
 (not sure if we'll show category-less reports in 'all categories')
 
 Sponsored by APC (built for takebackthetech.net)
 
 == Installation ==
-1. Copy the entire /sharing_two/ directory into your /plugins/ directory.
-2. Activate the plugin.
+1. Make sure the ushahidiapilibrary plugin is present and installed
+2. Copy the entire /sharing_two/ directory into your /plugins/ directory.
+3. Activate the plugin.
+4. If you have a custom theme
+  a. Copy views/reports/detail.php to your theme
+  b. Copy views/reports/list.php to your theme
+5. Copy views/admin/comments/main.php in applications/views
 

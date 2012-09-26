@@ -195,12 +195,33 @@ class Sharing {
 	{
 		$sql = Event::$data;
 		
-		$sql = str_replace(Kohana::config('database.default.table_prefix').'incident i ', Kohana::config('database.default.table_prefix').'sharing_combined_incident i ', $sql);
+		$sql = str_replace(
+			Kohana::config('database.default.table_prefix').'incident i ',
+			Kohana::config('database.default.table_prefix').'sharing_combined_incident i ',
+			$sql
+		);
 		
 		$sql = str_replace('i.id incident_id', 'i.id incident_id, i.source ', $sql);
 		
 		$sql = str_replace(Kohana::config('database.default.table_prefix')."incident_category ic ON (ic.incident_id = i.id) ",
 			Kohana::config('database.default.table_prefix')."sharing_combined_incident_category ic ON ((ic.incident_id = i.id AND i.source = 'main') OR (ic.sharing_incident_id = i.id AND i.source != 'main')) ",
+			$sql
+		);
+		
+		Event::$data = $sql;
+	}
+	
+	/*
+	 * Callback for ushahidi_filter.get_neighbouring_incidents_sql
+	 * Swap incidents table for combined incident view
+	 */
+	public function get_neighbouring_incidents_sql()
+	{
+		$sql = Event::$data;
+		
+		$sql = str_replace(
+			'`'.Kohana::config('database.default.table_prefix').'incident` AS i ',
+			'`'.Kohana::config('database.default.table_prefix').'sharing_combined_incident` AS i ',
 			$sql
 		);
 		

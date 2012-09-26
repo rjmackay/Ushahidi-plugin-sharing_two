@@ -64,6 +64,7 @@ class sharing_hooks {
 			if (stripos(Router::$current_uri, 'reports') === 0)
 			{
 				Event::add('ushahidi_filter.get_incidents_sql', array('Sharing', 'get_incidents_sql'));
+				Event::add('ushahidi_filter.get_neighbouring_incidents_sql', array('Sharing', 'get_neighbouring_incidents_sql'));
 				Event::add('ushahidi_filter.fetch_incidents_set_params', array('Sharing', 'fetch_incidents_set_params'));
 				Event::add('ushahidi_action.report_filters_ui', array('Sharing', 'report_filters_ui'));
 				Event::add('ushahidi_action.report_js_filterReportsAction', array('Sharing', 'report_js_filterReportsAction'));
