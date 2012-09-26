@@ -36,8 +36,7 @@ class S_Sharing_Controller extends Controller {
 	}
 
 	/**
-	 * Use remote Ushahidi deployments API to get Incident Data
-	 * Limit to 20 not to kill remote server
+	 * Process site: grabbing reports and/or categories
 	 */
 	private function _process_site($site)
 	{
@@ -52,7 +51,24 @@ class S_Sharing_Controller extends Controller {
 		{
 			echo "<strong>Processing site:</strong> ". $site->site_name . "<br/><br/>";
 		}
+		
+		if ($site->share_reports)
+		{
+			$this->_process_site_reports($site);
+		}
+		
+		if ($site->share_categories)
+		{
+			$this->_process_site_categories($site);
+		}
+	}
 
+	/**
+	 * Use remote Ushahidi deployments API to get Incident Data
+	 * Limit to 20 not to kill remote server
+	 */
+	private function _process_site_reports($site)
+	{
 		$limit = 20;
 		$since_id = 0;
 		$count = 0;
@@ -206,6 +222,158 @@ class S_Sharing_Controller extends Controller {
 				ORM::factory('sharing_incident_media')
 						->in('sharing_incident_id', $sharing_incidents->primary_key_array())
 						->delete_all();
+					
+				ORM::factory('sharing_incident_comment')
+						->in('sharing_incident_id', $sharing_incidents->primary_key_array())
+						->delete_all();
+				
+				// @todo delete associated categories/location/media
+				$sharing_incidents = ORM::factory('sharing_incident')
+					->notin('id', $modified_ids)
+					->where('sharing_site_id', $site->id)
+					->delete_all();
+			}
+		}
+	}
+
+	/**
+	 * Use remote Ushahidi deployments API to get Category Data
+	 */
+	private function _process_site_categories($site)
+	{
+		$count = 0;
+		$modified_ids = array(); // this is an array of our primary keys
+
+		$UshApiLib_Site_Info = new UshApiLib_Site_Info(sharing_helper::clean_url($site->site_url)."/api");
+	
+		$params = new UshApiLib_Categories_Task_Parameter();
+		
+		if (isset($_GET['debug']) AND $_GET['debug'] == 1)
+		{
+			echo "<strong>Query String:</strong> ". Kohana::debug($params->get_query_string()) . "<br/><br/>";
+		}
+		
+		$task = new UshApiLib_Categories_Task($params, $UshApiLib_Site_Info);
+		$response = $task->execute();
+		
+		if ($response->getError_code())
+		{
+			if (isset($_GET['debug']) AND $_GET['debug'] == 1)
+			{
+				echo "Error Code: ". $response->getError_code() . " Message: ". $response->getError_message() . "<BR /><BR />";
+			}
+			return;
+		}
+		
+		// Grab existing items
+		$existing_items = ORM::factory('sharing_category')
+						->with('category')
+						->where('sharing_site_id', $site->id)
+						->find_all();
+		
+		// Build array of existing items, key'd by remote id
+		$array = array();
+		foreach ($existing_items as $item)
+		{
+			$array[$item->remote_category_id] = $item;
+		}
+		$existing_items = $array;
+		
+		// Parse Incidents Into Database
+		$count = 0;
+		// First pass - parent categories
+		foreach($response->getCategories() as $remote_category_id => $orm_category)
+		{
+			if (isset($_GET['debug']) AND $_GET['debug'] == 1)
+			{
+				echo "Importing report $remote_category_id : ". $orm_category->category_title. "<br/>";
+			}
+			// skip child categories
+			if ($orm_category->parent_id != 0) continue;
+			
+			// Check if we've saved this before.
+			if (isset($existing_items[$remote_category_id]))
+			{
+				$sharing_category = $existing_items[$remote_category_id];
+				$category = $sharing_category->category;
+			} else {
+				$sharing_category = ORM::factory('sharing_category');
+				$category = ORM::factory('category');
+			}
+			
+			$category->category_title = $orm_category->category_title;
+			$category->category_description = $orm_category->category_title;
+			$category->category_color = $orm_category->category_color;
+			//$category->category_position = $orm_category->category_position;
+			$category->save();
+		
+			$sharing_category->category_id = $category->id;
+			$sharing_category->remote_category_id = $remote_category_id;
+			$sharing_category->sharing_site_id = $site->id;
+			$sharing_category->save();
+
+			$existing_items[$remote_category_id] = $sharing_category;
+
+			// Save the primary key of the row we touched. We will be deleting ones that weren't touched.
+			$modified_ids[] = $sharing_category->id;
+		}
+		
+		// 2nd pass: child categories
+		foreach($response->getCategories() as $remote_category_id => $orm_category)
+		{
+			if (isset($_GET['debug']) AND $_GET['debug'] == 1)
+			{
+				echo "Importing report $remote_category_id : ". $orm_category->category_title. "<br/>";
+			}
+			// skip top level categories
+			if ($orm_category->parent_id == 0) continue;
+			
+			// Check if we've saved this before.
+			if (isset($existing_items[$remote_category_id]))
+			{
+				$sharing_category = $existing_items[$remote_category_id];
+				$category = $sharing_category->category;
+			} else {
+				$sharing_category = ORM::factory('sharing_category');
+				$category = ORM::factory('category');
+			}
+			
+			// Find the sharing_category that matches the parent
+			$parent = $existing_items[$orm_category->parent_id];
+			
+			$category->category_title = $orm_category->category_title;
+			$category->category_description = $orm_category->category_title;
+			$category->category_color = $orm_category->category_color;
+			$category->parent_id = $parent->category_id;
+			//$category->category_position = $orm_category->category_position;
+			$category->save();
+		
+			$sharing_category->category_id = $category->id;
+			$sharing_category->remote_category_id = $remote_category_id;
+			$sharing_category->sharing_site_id = $site->id;
+			$sharing_category->save();
+
+			$existing_items[$remote_category_id] = $sharing_category;
+
+			// Save the primary key of the row we touched. We will be deleting ones that weren't touched.
+			$modified_ids[] = $sharing_category->id;
+		}
+
+		// Delete the reports that are no longer being displayed on the shared site
+		if (count($modified_ids) > 0)
+		{
+			$sharing_incidents = ORM::factory('sharing_category')
+				->notin('id', $modified_ids)
+				->where('sharing_site_id', $site->id)
+				->find_all();
+			
+			if ($sharing_incidents->count() > 0)
+			{
+				$category_ids = $sharing_incidents->select_list('id','category_id');
+				
+				ORM::factory('category')
+					->in('id', array_values($category_ids))
+					->delete_all();
 				
 				// @todo delete associated categories/location/media
 				$sharing_incidents = ORM::factory('sharing_incident')

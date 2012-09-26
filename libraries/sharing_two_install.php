@@ -32,6 +32,8 @@ class Sharing_two_Install {
 				`site_url` varchar(255) NOT NULL COMMENT 'url of the deployment to share with',
 				`site_color` varchar(20) DEFAULT 'CC0000' COMMENT 'color that shows the shared reports',
 				`site_active` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'sharing active or inactive ',
+				`share_categories` tinyint(4) NOT NULL DEFAULT '0' COMMENT 'sharing active or inactive ',
+				`share_reports` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'sharing active or inactive ',
 				PRIMARY KEY (id)
 			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Stores sites we are getting shared reports from'
 			");
@@ -82,7 +84,21 @@ class Sharing_two_Install {
 			  `comment_id` int(11) unsigned NOT NULL DEFAULT '5',
 			  PRIMARY KEY (`id`),
 			  UNIQUE KEY `sharing_incident_comment_ids` (`sharing_incident_id`,`comment_id`)
-			) ENGINE=MyISAM AUTO_INCREMENT=14064 DEFAULT CHARSET=utf8 COMMENT='Stores shared reports comments';
+			) ENGINE=MyISAM AUTO_INCREMENT=14064 DEFAULT CHARSET=utf8 COMMENT='Stores shared reports comments'
+			");
+			
+			$this->db->query("
+			CREATE TABLE IF NOT EXISTS `".Kohana::config('database.default.table_prefix')."sharing_category`
+			(
+				`id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				`sharing_site_id` INT UNSIGNED NOT NULL,
+				`category_id` BIGINT(20) UNSIGNED NOT NULL,
+				`remote_category_id` BIGINT(20) UNSIGNED NOT NULL,
+				`updated` datetime DEFAULT NULL,
+				PRIMARY KEY (id),
+			  UNIQUE KEY `category_id` (`category_id`),
+			  UNIQUE KEY `remote_category_id` (`sharing_site_id`,`remote_category_id`)
+			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Stores shared categories'
 			");
 			
 			// Create view for querying

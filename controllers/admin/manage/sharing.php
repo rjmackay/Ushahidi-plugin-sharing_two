@@ -67,6 +67,8 @@ class Sharing_Controller extends Admin_Controller
 				$post->add_rules('site_name','required', 'length[3,150]');
 				$post->add_rules('site_url','required', 'url', 'length[3,255]');
 				$post->add_rules('site_color','required', 'length[6,6]');
+				$post->add_rules('share_reports', 'range[0,1]');
+				$post->add_rules('share_categories', 'range[0,1]');
 				$post->add_callbacks('site_url', array($this,'url_exists_chk'));
 			}
 			
@@ -116,6 +118,8 @@ class Sharing_Controller extends Admin_Controller
 					$site->site_name = $post->site_name;
 					$site->site_url = $post->site_url;
 					$site->site_color = $post->site_color;
+					$site->share_reports = $post->share_reports;
+					$site->share_categories = $post->share_categories;
 					$site->save();
 					
 					$form_saved = TRUE;

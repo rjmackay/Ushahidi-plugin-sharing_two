@@ -16,12 +16,14 @@
  */
 ?>
 // Sharing JS
-function fillFields(id, site_url, site_name, site_color)
+function fillFields(id, site_url, site_name, site_color, share_reports, share_categories)
 {
 	$("#site_id").attr("value", decodeURIComponent(id));
 	$("#site_name").attr("value", decodeURIComponent(site_name));
 	$("#site_url").attr("value", decodeURIComponent(site_url));
 	$("#site_color").attr("value", decodeURIComponent(site_color));
+	$("#share_reports").attr("checked", decodeURIComponent(share_reports) == 1);
+	$("#share_categories").attr("checked", decodeURIComponent(share_categories) == 1);
 }
 
 // Ajax Submission
@@ -33,7 +35,7 @@ function sharingAction ( action, confirmAction, id )
 		// Set Category ID
 		$("#site_id_action").attr("value", id);
 		// Set Submit Type
-		$("#action").attr("value", action);		
+		$("#action").attr("value", action);
 		// Submit Form
 		$("#sharingListing").submit();
 	}

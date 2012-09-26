@@ -1,7 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
 /**
-* Model for Sharing
+* Model for Sharing_Category
  *
  * PHP version 5
  * LICENSE: This source file is subject to LGPL license 
@@ -14,10 +14,12 @@
  * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
  */
 
-class Sharing_Site_Model extends ORM
-{	
-	protected $has_many = array('sharing_incident', 'sharing_category');
+class Sharing_Category_Model extends ORM
+{
+	protected $belongs_to = array('sharing_site');
+	protected $has_one = array('category');
 	
 	// Database table name
-	protected $table_name = 'sharing_site';
+	protected $table_name = 'sharing_category';
+	
 }

@@ -94,11 +94,19 @@
 												<div class="post">
 													<h4><?php echo $site_name; ?></h4>
 												</div>
-												<ul class="links">
+												<ul class="info">
 													<?php
 													if($site_url)
 													{
 														?><li class="none-separator"><strong><?php echo text::auto_link($site_url); ?></strong></li><?php
+													}
+													if($site->share_reports)
+													{
+														?><li class=""><?php echo Kohana::lang('sharing_two.share_reports_enabled'); ?></li><?php
+													}
+													if($site->share_categories)
+													{
+														?><li class=""><?php echo Kohana::lang('sharing_two.share_categories_enabled'); ?></li><?php
 													}
 													?>
 												</ul>
@@ -108,7 +116,7 @@
 											</td>
 											<td class="col-4">
 												<ul>
-													<li class="none-separator"><a href="#add" onClick="fillFields('<?php echo(rawurlencode($site_id)); ?>','<?php echo(rawurlencode($site_url)); ?>','<?php echo(rawurlencode($site_name)); ?>','<?php echo(rawurlencode($site_color)); ?>')"><?php echo Kohana::lang('ui_main.edit');?></a></li>
+													<li class="none-separator"><a href="#add" onClick="fillFields('<?php echo(rawurlencode($site_id)); ?>','<?php echo(rawurlencode($site_url)); ?>','<?php echo(rawurlencode($site_name)); ?>','<?php echo(rawurlencode($site_color)); ?>','<?php echo(rawurlencode($site->share_reports)); ?>','<?php echo(rawurlencode($site->share_categories)); ?>')"><?php echo Kohana::lang('ui_main.edit');?></a></li>
 													<li class="none-separator">
 													<?php if($site_active) { ?>
 													<a href="javascript:sharingAction('h','HIDE',<?php echo rawurlencode($site_id);?>)" class="status_yes"><?php echo Kohana::lang('ui_main.visible');?></a>
@@ -172,6 +180,14 @@
 									});
 								});
 							</script>
+						</div>
+						<div class="tab_form_item">
+							<strong><?php echo Kohana::lang('sharing_two.share_reports');?>:</strong><br />
+							<?php print form::checkbox('share_reports', 1, 1); ?>
+						</div>
+						<div class="tab_form_item">
+							<strong><?php echo Kohana::lang('sharing_two.share_categories');?>:</strong><br />
+							<?php print form::checkbox('share_categories', 1, 0); ?>
 						</div>
 						<div style="clear:both"></div>
 						<div class="tab_form_item">
