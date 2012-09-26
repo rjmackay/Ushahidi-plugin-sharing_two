@@ -42,13 +42,12 @@ class Sharing {
 	public static function sharing_bar()
 	{
 		// Get all active Shares
-		$sites = array();
-		foreach (ORM::factory('sharing_site')
-					->where('site_active', 1)
-					->find_all() as $site)
-		{
-			$sites[$site->id] = array($site->site_name, $site->site_color);
-		}
+		$sites = ORM::factory('sharing_site')
+			->where('site_active', 1)
+			->where('share_reports', 1)
+			->find_all();
+		
+		if (count($sites) == 0) return;
 
 		$sharing_bar = View::factory('sharing/sharing_bar');
 
