@@ -284,12 +284,13 @@ class S_Sharing_Controller extends Controller {
 		// First pass - parent categories
 		foreach($response->getCategories() as $remote_category_id => $orm_category)
 		{
-			if (isset($_GET['debug']) AND $_GET['debug'] == 1)
-			{
-				echo "Importing report $remote_category_id : ". $orm_category->category_title. "<br/>";
-			}
 			// skip child categories
 			if ($orm_category->parent_id != 0) continue;
+			
+			if (isset($_GET['debug']) AND $_GET['debug'] == 1)
+			{
+				echo "Importing category $remote_category_id : ". $orm_category->category_title. "<br/>";
+			}
 			
 			// Check if we've saved this before.
 			if (isset($existing_items[$remote_category_id]))
@@ -321,12 +322,13 @@ class S_Sharing_Controller extends Controller {
 		// 2nd pass: child categories
 		foreach($response->getCategories() as $remote_category_id => $orm_category)
 		{
-			if (isset($_GET['debug']) AND $_GET['debug'] == 1)
-			{
-				echo "Importing report $remote_category_id : ". $orm_category->category_title. "<br/>";
-			}
 			// skip top level categories
 			if ($orm_category->parent_id == 0) continue;
+			
+			if (isset($_GET['debug']) AND $_GET['debug'] == 1)
+			{
+				echo "Importing category $remote_category_id : ". $orm_category->category_title. "<br/>";
+			}
 			
 			// Check if we've saved this before.
 			if (isset($existing_items[$remote_category_id]))
@@ -339,6 +341,7 @@ class S_Sharing_Controller extends Controller {
 			}
 			
 			// Find the sharing_category that matches the parent
+			if (! isset($existing_items[$orm_category->parent_id])) continue; // Skip if parent missing
 			$parent = $existing_items[$orm_category->parent_id];
 			
 			$category->category_title = $orm_category->category_title;
