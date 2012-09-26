@@ -287,6 +287,9 @@ class S_Sharing_Controller extends Controller {
 			// skip child categories
 			if ($orm_category->parent_id != 0) continue;
 			
+			// Skip special categories
+			if ($orm_category->category_title == 'Trusted Reports' OR $orm_category->category_title == 'NONE') continue;
+			
 			if (isset($_GET['debug']) AND $_GET['debug'] == 1)
 			{
 				echo "Importing category $remote_category_id : ". $orm_category->category_title. "<br/>";
@@ -324,6 +327,9 @@ class S_Sharing_Controller extends Controller {
 		{
 			// skip top level categories
 			if ($orm_category->parent_id == 0) continue;
+			
+			// Skip special categories
+			if ($orm_category->category_title == 'Trusted Reports' OR $orm_category->category_title == 'NONE') continue;
 			
 			if (isset($_GET['debug']) AND $_GET['debug'] == 1)
 			{
