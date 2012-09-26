@@ -282,39 +282,13 @@ class S_Sharing_Controller extends Controller {
 		// Parse Incidents Into Database
 		$count = 0;
 		// First pass - parent categories
-		foreach($response->getCategories() as $remote_category_id => $orm_category)
+		foreach($response->getCategories() as $remote_category_id => $remote_category)
 		{
 			// skip child categories
-			if ($orm_category->parent_id != 0) continue;
+			if ($remote_category->parent_id != 0) continue;
 			
-			// Skip special categories
-			if ($orm_category->category_title == 'Trusted Reports' OR $orm_category->category_title == 'NONE') continue;
-			
-			if (isset($_GET['debug']) AND $_GET['debug'] == 1)
-			{
-				echo "Importing category $remote_category_id : ". $orm_category->category_title. "<br/>";
-			}
-			
-			// Check if we've saved this before.
-			if (isset($existing_items[$remote_category_id]))
-			{
-				$sharing_category = $existing_items[$remote_category_id];
-				$category = $sharing_category->category;
-			} else {
-				$sharing_category = ORM::factory('sharing_category');
-				$category = ORM::factory('category');
-			}
-			
-			$category->category_title = $orm_category->category_title;
-			$category->category_description = $orm_category->category_title;
-			$category->category_color = $orm_category->category_color;
-			//$category->category_position = $orm_category->category_position;
-			$category->save();
-		
-			$sharing_category->category_id = $category->id;
-			$sharing_category->remote_category_id = $remote_category_id;
-			$sharing_category->sharing_site_id = $site->id;
-			$sharing_category->save();
+			$sharing_category = $this->_save_category($remote_category_id, $remote_category, $site->id, $existing_items);
+			if (! $sharing_category) continue;
 
 			$existing_items[$remote_category_id] = $sharing_category;
 
@@ -323,45 +297,18 @@ class S_Sharing_Controller extends Controller {
 		}
 		
 		// 2nd pass: child categories
-		foreach($response->getCategories() as $remote_category_id => $orm_category)
+		foreach($response->getCategories() as $remote_category_id => $remote_category)
 		{
 			// skip top level categories
-			if ($orm_category->parent_id == 0) continue;
-			
-			// Skip special categories
-			if ($orm_category->category_title == 'Trusted Reports' OR $orm_category->category_title == 'NONE') continue;
-			
-			if (isset($_GET['debug']) AND $_GET['debug'] == 1)
-			{
-				echo "Importing category $remote_category_id : ". $orm_category->category_title. "<br/>";
-			}
-			
-			// Check if we've saved this before.
-			if (isset($existing_items[$remote_category_id]))
-			{
-				$sharing_category = $existing_items[$remote_category_id];
-				$category = $sharing_category->category;
-			} else {
-				$sharing_category = ORM::factory('sharing_category');
-				$category = ORM::factory('category');
-			}
+			if ($remote_category->parent_id == 0) continue;
 			
 			// Find the sharing_category that matches the parent
-			if (! isset($existing_items[$orm_category->parent_id])) continue; // Skip if parent missing
-			$parent = $existing_items[$orm_category->parent_id];
+			if (! isset($existing_items[$remote_category->parent_id])) continue; // Skip if parent missing
+			$parent = $existing_items[$remote_category->parent_id];
 			
-			$category->category_title = $orm_category->category_title;
-			$category->category_description = $orm_category->category_title;
-			$category->category_color = $orm_category->category_color;
-			$category->parent_id = $parent->category_id;
-			//$category->category_position = $orm_category->category_position;
-			$category->save();
-		
-			$sharing_category->category_id = $category->id;
-			$sharing_category->remote_category_id = $remote_category_id;
-			$sharing_category->sharing_site_id = $site->id;
-			$sharing_category->save();
-
+			$sharing_category = $this->_save_category($remote_category_id, $remote_category, $site->id, $existing_items, $parent);
+			if (! $sharing_category) continue;
+			
 			$existing_items[$remote_category_id] = $sharing_category;
 
 			// Save the primary key of the row we touched. We will be deleting ones that weren't touched.
@@ -392,4 +339,40 @@ class S_Sharing_Controller extends Controller {
 			}
 		}
 	}
+
+	private function _save_category($remote_category_id, $remote_category, $site_id, &$existing_items, $parent = FALSE)
+	{
+		// Skip special categories
+		if ($remote_category->category_title == 'Trusted Reports' OR $remote_category->category_title == 'NONE') return FALSE;
+		
+		if (isset($_GET['debug']) AND $_GET['debug'] == 1)
+		{
+			echo "Importing category $remote_category_id : ". $remote_category->category_title. "<br/>";
+		}
+		
+		// Check if we've saved this before.
+		if (isset($existing_items[$remote_category_id]))
+		{
+			$sharing_category = $existing_items[$remote_category_id];
+			$category = $sharing_category->category;
+		} else {
+			$sharing_category = ORM::factory('sharing_category');
+			$category = ORM::factory('category');
+		}
+		
+		$category->category_title = $remote_category->category_title;
+		$category->category_description = $remote_category->category_title;
+		$category->category_color = $remote_category->category_color;
+		$category->parent_id = $parent ? $parent->category_id : 0;
+		//$category->category_position = $remote_category->category_position;
+		$category->save();
+	
+		$sharing_category->category_id = $category->id;
+		$sharing_category->remote_category_id = $remote_category_id;
+		$sharing_category->sharing_site_id = $site_id;
+		$sharing_category->save();
+		
+		return $sharing_category;
+	}
+
 }
