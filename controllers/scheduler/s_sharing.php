@@ -388,6 +388,7 @@ class S_Sharing_Controller extends Controller {
 		$sharing_category->category_id = $category->id;
 		$sharing_category->remote_category_id = $remote_category_id;
 		$sharing_category->sharing_site_id = $site_id;
+		$sharing_category->updated = date("Y-m-d H:i:s",time());
 		$sharing_category->save();
 		
 		return $sharing_category;
