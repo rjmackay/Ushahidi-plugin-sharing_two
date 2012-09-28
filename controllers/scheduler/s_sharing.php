@@ -282,12 +282,14 @@ class S_Sharing_Controller extends Controller {
 		// Parse Incidents Into Database
 		$count = 0;
 		// First pass - parent categories
-		foreach($response->getCategories() as $remote_category_id => $remote_category)
+		foreach($response->getCategories() as $remote_category_id => $category_info)
 		{
+			$remote_category = $category_info['category'];
+			
 			// skip child categories
 			if ($remote_category->parent_id != 0) continue;
 			
-			$sharing_category = $this->_save_category($remote_category_id, $remote_category, $site->id, $existing_items);
+			$sharing_category = $this->_save_category($remote_category_id, $category_info, $site->id, $existing_items);
 			if (! $sharing_category) continue;
 
 			$existing_items[$remote_category_id] = $sharing_category;
@@ -297,8 +299,10 @@ class S_Sharing_Controller extends Controller {
 		}
 		
 		// 2nd pass: child categories
-		foreach($response->getCategories() as $remote_category_id => $remote_category)
+		foreach($response->getCategories() as $remote_category_id => $category_info)
 		{
+			$remote_category = $category_info['category'];
+			
 			// skip top level categories
 			if ($remote_category->parent_id == 0) continue;
 			
@@ -306,7 +310,7 @@ class S_Sharing_Controller extends Controller {
 			if (! isset($existing_items[$remote_category->parent_id])) continue; // Skip if parent missing
 			$parent = $existing_items[$remote_category->parent_id];
 			
-			$sharing_category = $this->_save_category($remote_category_id, $remote_category, $site->id, $existing_items, $parent);
+			$sharing_category = $this->_save_category($remote_category_id, $category_info, $site->id, $existing_items, $parent);
 			if (! $sharing_category) continue;
 			
 			$existing_items[$remote_category_id] = $sharing_category;
@@ -340,8 +344,10 @@ class S_Sharing_Controller extends Controller {
 		}
 	}
 
-	private function _save_category($remote_category_id, $remote_category, $site_id, &$existing_items, $parent = FALSE)
+	private function _save_category($remote_category_id, $category_info, $site_id, &$existing_items, $parent = FALSE)
 	{
+		$remote_category = $category_info['category'];
+		
 		// Skip special categories
 		if ($remote_category->category_title == 'Trusted Reports' OR $remote_category->category_title == 'NONE') return FALSE;
 		
@@ -366,6 +372,18 @@ class S_Sharing_Controller extends Controller {
 		$category->parent_id = $parent ? $parent->category_id : 0;
 		//$category->category_position = $remote_category->category_position;
 		$category->save();
+		
+		// Delete old category translations and save new ones
+		ORM::factory('category_lang')->where('category_id', $category->id)->delete_all();
+		foreach ($category_info['translations'] as $translation)
+		{
+			if (isset($_GET['debug']) AND $_GET['debug'] == 1)
+			{
+				echo "Saving translation : ". $translation->locale. "<br/>";
+			}
+			$translation->category_id = $category->id;
+			$translation->save();
+		}
 	
 		$sharing_category->category_id = $category->id;
 		$sharing_category->remote_category_id = $remote_category_id;
