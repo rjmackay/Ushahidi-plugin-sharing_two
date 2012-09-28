@@ -78,7 +78,7 @@ class Sharing_two_Install {
 			");
 			
 			$this->db->query("
-			CREATE TABLE `".Kohana::config('database.default.table_prefix')."sharing_incident_comment` (
+			CREATE TABLE IF NOT EXISTS `".Kohana::config('database.default.table_prefix')."sharing_incident_comment` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT,
 			  `sharing_incident_id` bigint(20) unsigned NOT NULL DEFAULT '0',
 			  `comment_id` int(11) unsigned NOT NULL DEFAULT '5',
