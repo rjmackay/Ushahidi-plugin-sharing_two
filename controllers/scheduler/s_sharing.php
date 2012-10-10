@@ -367,7 +367,7 @@ class S_Sharing_Controller extends Controller {
 		$category->category_description = $remote_category->category_title;
 		$category->category_color = $remote_category->category_color;
 		$category->parent_id = $parent ? $parent->category_id : 0;
-		//$category->category_position = $remote_category->category_position;
+		$category->category_position = $remote_category->category_position;
 		$category->save();
 		
 		// Delete old category translations and save new ones
