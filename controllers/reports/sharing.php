@@ -370,7 +370,7 @@ class Sharing_Controller extends Main_Controller {
 			->find();
 		
 		echo '<h3>'.html::anchor(
-			$incident->sharing_site->site_url.'/report/view/'.$incident->remote_incident_id,
+			$incident->sharing_site->site_url.'/reports/view/'.$incident->remote_incident_id,
 			Kohana::lang('sharing_two.view_original', array($incident->sharing_site->site_name))
 		).'</h3>';
 	}
