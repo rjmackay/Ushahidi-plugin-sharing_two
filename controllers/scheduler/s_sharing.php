@@ -241,7 +241,6 @@ class S_Sharing_Controller extends Controller {
 	 */
 	private function _process_site_categories($site)
 	{
-		$count = 0;
 		$modified_ids = array(); // this is an array of our primary keys
 
 		$UshApiLib_Site_Info = new UshApiLib_Site_Info(sharing_helper::clean_url($site->site_url)."/api");
@@ -279,8 +278,6 @@ class S_Sharing_Controller extends Controller {
 		}
 		$existing_items = $array;
 		
-		// Parse Incidents Into Database
-		$count = 0;
 		// First pass - parent categories
 		foreach($response->getCategories() as $remote_category_id => $category_info)
 		{
