@@ -27,6 +27,17 @@ class Sharing {
 	{
 		// Quick hack to set default sharing value
 		! isset($_GET['sharing']) ? $_GET['sharing'] = Kohana::config('sharing_two.default_sharing_filter') : null;
+		
+		// Ensure sharing is an array
+		if (! is_array($_GET['sharing']))
+		{
+			$_GET['sharing'] = array($_GET['sharing']);
+		}
+		
+		if (($key = array_search('all', $_GET['sharing'])) !== FALSE)
+		{
+			unset($_GET['sharing'][$key]);
+		}
 	}
 	
 
@@ -64,71 +75,6 @@ class Sharing {
 		$js->render(TRUE);
 	}
 	
-	
-	/**
-	 * Add sharing markers to json when showing all sites
-	 **/
-	public function json_alter_markers()
-	{
-		// If filter set to all sites: load extra incidents
-		if ($_GET['sharing'] == 'all')
-		{
-			// load sharing site incidents
-			$markers = Event::$data;
-			
-			// Get markers array
-			if ($markers instanceof ORM_Iterator)
-			{
-				$markers = $markers->as_array();
-			}
-			elseif ($markers instanceof Database_Result)
-			{
-				$markers = $markers->result_array();
-			}
-			
-			$sharing_markers = ORM::factory('sharing_incident')
-									->find_all();
-			
-			Event::$data = array_merge($markers, $sharing_markers->as_array());
-		}
-		// if filter set to main site only, do nothing.
-		elseif ($_GET['sharing'] == 'main')
-		{
-			// Do nothing: all incidents loaded already
-		}
-	}
-
-	/**
-	 * Replace json markers with current sharing site
-	 */
-	public function json_replace_markers()
-	{
-		// Check we're filtered to a single country site
-		if ($_GET['sharing'] != 'all' AND $_GET['sharing'] != 'main')
-		{
-			$sharing_id = intval($_GET['sharing']);
-			
-			if (!$sharing_id) return;
-			
-			// Get This Sharing ID Color
-			$sharing = ORM::factory('sharing')->find($sharing_id);
-
-			// Invalid sharing id: do nothing.
-			// This should possibly set an empty markers array
-			if(!$sharing->loaded) return;
-	
-			$sharing_url = sharing_helper::clean_url($sharing->sharing_url);
-			$sharing_color = $sharing->sharing_color;
-			
-			// Retrieve all markers
-			$markers = ORM::factory('sharing_incident')
-									->where('sharing_id', $sharing_id)
-									->find_all();
-			
-			Event::$data = $markers;
-		}
-	}
-	
 	/**
 	 * Callback for ushahidi_filter.fetch_incidents_set_params
 	 * Add filter for source to incidents query
@@ -137,18 +83,9 @@ class Sharing {
 	{
 		$params = Event::$data;
 		
-		if ($_GET['sharing'] == 'main')
-		{
-			$params[] = "i.source = 'main'";
-		}
-		elseif ($_GET['sharing'] != 'all' AND $_GET['sharing'] != array('all'))
+		if (! empty($_GET['sharing']))
 		{
 			$sharing = $_GET['sharing'];
-			// Convert to array
-			if (! is_array($sharing))
-			{
-				$sharing = array($sharing);
-			}
 			
 			// escape and implode values
 			$sharing = '('.implode(', ', array_map(array(Database::instance(), 'escape'), $sharing)).')';
@@ -247,5 +184,60 @@ class Sharing {
 	public function report_js_filterReportsAction()
 	{
 		View::factory('reports/sharing_filter_js')->render(TRUE);
+	}
+	
+	/**
+	 * Alter color if we're showing chared markers on main page
+	 */
+	public function json_alter_params()
+	{
+		$params = Event::$data;
+		
+		// Category ID
+		$category_id = (isset($_GET['c']) AND intval($_GET['c']) > 0) ? intval($_GET['c']) : 0;
+		// We're going to assume the category id is always valid.
+		
+		// Get sharing site info
+		// Check we're filtered to a single country site
+		if (! empty($_GET['sharing']))
+		{
+			if (count($_GET['sharing']) == 1 AND $site_id = intval(current($_GET['sharing'])))
+			{
+				// Check the sharing site is active
+				$site = ORM::factory('sharing_site')->where('site_active', 1)->find($site_id);
+				if ($site->loaded)
+				{
+					$site_url = sharing_helper::clean_url($site->site_url);
+					// Only set color if all categories, category color overrides site color
+					if (!$category_id)
+					{
+						$params['color'] = $site->site_color;
+					}
+					$params['icon'] = "";
+				}
+			}
+		}
+		
+		Event::$data = $params;
+	}
+	
+	/**
+	 * Alter markers before conversion to geojson
+	 * add URL to shared markers
+	 */
+	public function json_alter_markers()
+	{
+		$markers = Event::$data;
+		$markers = $markers->as_array();
+		
+		foreach ($markers as $key => $marker)
+		{
+			if (isset($marker->source) AND $marker->source != 'main')
+			{
+				$markers[$key]->url = Sharing_Incident_Model::get_url($marker);
+			}
+		}
+		
+		Event::$data = $markers;
 	}
 }

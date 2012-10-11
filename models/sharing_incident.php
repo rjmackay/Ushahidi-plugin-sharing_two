@@ -44,7 +44,7 @@ class Sharing_Incident_Model extends ORM
 	{
 		if (is_object($incident))
 		{
-			$id = $incident->id;
+			$id = isset($incident->incident_id) ? $incident->incident_id : $incident->id;
 			//$site = isset($incident->sharing_site) ? $incident->sharing_site : ORM::factory('sharing_site', $incident->sharing_site_id);
 		}
 		else

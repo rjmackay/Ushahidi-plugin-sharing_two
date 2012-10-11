@@ -61,17 +61,17 @@ class sharing_hooks {
 		{
 			Sharing::process_get_param();
 			
+			Event::add('ushahidi_filter.get_incidents_sql', array('Sharing', 'get_incidents_sql'));
+			Event::add('ushahidi_filter.fetch_incidents_set_params', array('Sharing', 'fetch_incidents_set_params'));
+			Event::add('ushahidi_filter.json_alter_params', array('Sharing', 'json_alter_params'));
+			Event::add('ushahidi_filter.json_alter_markers', array('Sharing', 'json_alter_markers'));
+			
 			if (stripos(Router::$current_uri, 'reports') === 0)
 			{
-				Event::add('ushahidi_filter.get_incidents_sql', array('Sharing', 'get_incidents_sql'));
 				Event::add('ushahidi_filter.get_neighbouring_incidents_sql', array('Sharing', 'get_neighbouring_incidents_sql'));
-				Event::add('ushahidi_filter.fetch_incidents_set_params', array('Sharing', 'fetch_incidents_set_params'));
 				Event::add('ushahidi_action.report_filters_ui', array('Sharing', 'report_filters_ui'));
 				Event::add('ushahidi_action.report_js_filterReportsAction', array('Sharing', 'report_js_filterReportsAction'));
 			}
-
-			//Event::add('ushahidi_filter.json_alter_markers', array($this, 'json_alter_markers'));
-			//Event::add('ushahidi_filter.json_replace_markers', array($this, 'json_replace_markers'));
 		}
 	}
 
