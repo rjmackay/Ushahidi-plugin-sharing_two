@@ -319,25 +319,16 @@ class S_Sharing_Controller extends Controller {
 		// Delete the reports that are no longer being displayed on the shared site
 		if (count($modified_ids) > 0)
 		{
-			$sharing_incidents = ORM::factory('sharing_category')
-				->notin('id', $modified_ids)
-				->where('sharing_site_id', $site->id)
-				->find_all();
+			$modified_ids = array_map('intval', $modified_ids);
 			
-			if ($sharing_incidents->count() > 0)
-			{
-				$category_ids = $sharing_incidents->select_list('id','category_id');
-				
-				ORM::factory('category')
-					->in('id', array_values($category_ids))
-					->delete_all();
-				
-				// @todo delete associated categories/location/media
-				$sharing_incidents = ORM::factory('sharing_incident')
-					->notin('id', $modified_ids)
-					->where('sharing_site_id', $site->id)
-					->delete_all();
-			}
+			// Hide categories when deleted/hidden on main site
+			// We can't tell the difference between deleted/hidden from the API
+			$result = Database::instance()->query('UPDATE category SET category_visible = 0
+				WHERE id IN (SELECT category_id FROM sharing_category WHERE id NOT IN ('.implode(',', $modified_ids).') AND sharing_site_id = ?)',
+				$site->id);
+
+			// @todo save hidden state so we only hide a category once, and it can be made visible by admin
+			
 		}
 	}
 
