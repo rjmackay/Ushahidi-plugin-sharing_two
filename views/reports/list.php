@@ -27,8 +27,8 @@
 					<td class="last">
 						<ul class="link-toggle lt-icons-only">
 							<?php //@todo Toggle the status of these links depending on the current page ?>
-							<li><a href="#" class="prev" id="page_<?php echo $previous_page; ?>"><?php echo Kohana::lang('ui_main.previous'); ?></a></li>
-							<li><a href="#" class="next" id="page_<?php echo $next_page; ?>"><?php echo Kohana::lang('ui_main.next'); ?></a></li>
+							<li><a href="#page_<?php echo $previous_page; ?>" class="prev"><?php echo Kohana::lang('ui_main.previous'); ?></a></li>
+							<li><a href="#page_<?php echo $next_page; ?>" class="next"><?php echo Kohana::lang('ui_main.next'); ?></a></li>
 						</ul>
 					</td>
 				</tr>
@@ -48,7 +48,7 @@
 					$incident_id = $incident->incident_id;
 					$incident_title = strip_tags($incident->incident_title);
 					$incident_description = strip_tags($incident->incident_description);
-					$incident_url = url::site("reports/view/$incident_id");
+					$incident_url = Incident_Model::get_url($incident_id);
 					if ($incident->source != 'main')
 					{
 						$incident_url = url::site("reports/sharing/view/$incident_id");
@@ -95,10 +95,10 @@
 						}
 					}
 				?>
-				<div id="<?php echo $incident_id ?>" class="rb_report <?php echo $incident_verified_class; ?>">
+				<div id="incident_<?php echo $incident_id ?>" class="rb_report <?php echo $incident_verified_class; ?>">
 					<div class="r_media">
 						<p class="r_photo" style="text-align:center;"> <a href="<?php echo $incident_url; ?>">
-							<img src="<?php echo $incident_thumb; ?>" style="max-width:89px;max-height:59px;" /> </a>
+							<img alt="<?php echo htmlentities($incident_title, ENT_QUOTES, "UTF-8"); ?>" src="<?php echo $incident_thumb; ?>" style="max-width:89px;max-height:59px;" /> </a>
 						</p>
 
 						<!-- Only show this if the report has a video -->
@@ -139,17 +139,17 @@
 					</div>
 
 					<div class="r_details">
-						<h3><a class="r_title" href="<?php echo $incident_url ?>">
-								<?php echo html::specialchars($incident_title); ?>
+						<h3><a class="r_title" href="<?php echo $incident_url; ?>">
+								<?php echo htmlentities($incident_title, ENT_QUOTES, "UTF-8"); ?>
 							</a>
-							<a href="<?php echo "$incident_url#discussion" ?>" class="r_comments">
+							<a href="<?php echo "$incident_url#discussion"; ?>" class="r_comments">
 								<?php echo $comment_count; ?></a> 
 								<?php echo $incident_verified; ?>
 							</h3>
 						<p class="r_date r-3 bottom-cap"><?php echo $incident_date; ?></p>
 						<div class="r_description"> <?php echo $incident_description; ?>  
-						  <a class="btn-show btn-more" href="#<?php echo $incident_id ?>"><?php echo Kohana::lang('ui_main.more_information'); ?> &raquo;</a> 
-						  <a class="btn-show btn-less" href="#<?php echo $incident_id ?>">&laquo; <?php echo Kohana::lang('ui_main.less_information'); ?></a> 
+						  <a class="btn-show btn-more" href="#incident_<?php echo $incident_id ?>"><?php echo Kohana::lang('ui_main.more_information'); ?> &raquo;</a> 
+						  <a class="btn-show btn-less" href="#incident_<?php echo $incident_id ?>">&laquo; <?php echo Kohana::lang('ui_main.less_information'); ?></a> 
 						</div>
 						<p class="r_location"><a href="<?php echo url::site("reports/?l=$location_id"); ?>"><?php echo html::specialchars($location_name); ?></a></p>
 						<?php
@@ -180,8 +180,8 @@
 					<td class="last">
 						<ul class="link-toggle lt-icons-only">
 							<?php //@todo Toggle the status of these links depending on the current page ?>
-							<li><a href="#" class="prev" id="page_<?php echo $previous_page; ?>"><?php echo Kohana::lang('ui_main.previous'); ?></a></li>
-							<li><a href="#" class="next" id="page_<?php echo $next_page; ?>"><?php echo Kohana::lang('ui_main.next'); ?></a></li>
+							<li><a href="#page_<?php echo $previous_page; ?>" class="prev"><?php echo Kohana::lang('ui_main.previous'); ?></a></li>
+							<li><a href="#page_<?php echo $next_page; ?>" class="next"><?php echo Kohana::lang('ui_main.next'); ?></a></li>
 						</ul>
 					</td>
 				</tr>
