@@ -160,7 +160,7 @@ class Sharing_Controller extends Admin_Controller
 		
 		// Javascript Header
 		$this->template->colorpicker_enabled = TRUE;
-		$this->template->js = new View('admin/manage/sharing/sharing_js');
+		$this->themes->js = new View('admin/manage/sharing/sharing_js');
 	}
 	
 	
