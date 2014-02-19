@@ -57,6 +57,7 @@ class sharing_hooks {
 		}
 		elseif (stripos(Router::$current_uri, 'json') === 0
 			OR stripos(Router::$current_uri, 'reports') === 0
+			OR stripos(Router::$current_uri, 'api') === 0
 		)
 		{
 			Sharing::process_get_param();
