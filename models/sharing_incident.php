@@ -4,14 +4,14 @@
 * Model for Sharing_Incident
  *
  * PHP version 5
- * LICENSE: This source file is subject to LGPL license 
+ * LICENSE: This source file is subject to LGPL license
  * that is available through the world-wide-web at the following URI:
  * http://www.gnu.org/copyleft/lesser.html
- * @author     Ushahidi Team <team@ushahidi.com> 
+ * @author     Ushahidi Team <team@ushahidi.com>
  * @package    Ushahidi - http://source.ushahididev.com
  * @subpackage Models
  * @copyright  Ushahidi - http://www.ushahidi.com
- * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
+ * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
  */
 
 class Sharing_Incident_Model extends ORM
@@ -22,10 +22,10 @@ class Sharing_Incident_Model extends ORM
 		'category' => 'sharing_incident_category',
 		'media' => 'sharing_incident_media'
 	);
-	
+
 	// Database table name
 	protected $table_name = 'sharing_incident';
-	
+
 	/**
 	 * Get url of this incident
 	 * @return string
@@ -34,7 +34,7 @@ class Sharing_Incident_Model extends ORM
 	{
 		return self::get_url($this);
 	}
-	
+
 	/**
 	 * Get url for the incident object passed
 	 * @param object
@@ -51,7 +51,7 @@ class Sharing_Incident_Model extends ORM
 		{
 			return false;
 		}
-		
+
 		return url::site("/reports/sharing/view/$id");
 	}
 
@@ -162,5 +162,5 @@ class Sharing_Incident_Model extends ORM
 			return FALSE;
 		}
 	}
-	
+
 }

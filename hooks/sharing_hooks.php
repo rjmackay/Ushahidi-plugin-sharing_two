@@ -3,17 +3,17 @@
  * Sharing Hook - Load All Events
  *
  * PHP version 5
- * LICENSE: This source file is subject to LGPL license 
+ * LICENSE: This source file is subject to LGPL license
  * that is available through the world-wide-web at the following URI:
  * http://www.gnu.org/copyleft/lesser.html
- * @author	   Ushahidi Team <team@ushahidi.com> 
+ * @author	   Ushahidi Team <team@ushahidi.com>
  * @package	   Ushahidi - http://source.ushahididev.com
  * @copyright  Ushahidi - http://www.ushahidi.com
- * @license	   http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
+ * @license	   http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
  */
 
 class sharing_hooks {
-	
+
 	/**
 	 * Registers the main event add method
 	 */
@@ -30,13 +30,13 @@ class sharing_hooks {
 			array_slice($modules, $d_index)
 		);
 		Kohana::config_set('core.modules', $modules);
-		
+
 		// Try to alter routing now
 		Sharing::routing();
-		
+
 		// hook into routing - in case we're running too early
 		Event::add_after('system.routing', array('Router', 'find_uri'), array('Sharing', 'routing'));
-		
+
 		//  Add other events just before controller runs
 		Event::add('system.pre_controller', array($this, 'add'));
 	}
@@ -61,12 +61,12 @@ class sharing_hooks {
 		)
 		{
 			Sharing::process_get_param();
-			
+
 			Event::add('ushahidi_filter.get_incidents_sql', array('Sharing', 'get_incidents_sql'));
 			Event::add('ushahidi_filter.fetch_incidents_set_params', array('Sharing', 'fetch_incidents_set_params'));
 			Event::add('ushahidi_filter.json_alter_params', array('Sharing', 'json_alter_params'));
 			Event::add('ushahidi_filter.json_alter_markers', array('Sharing', 'json_alter_markers'));
-			
+
 			if (stripos(Router::$current_uri, 'reports') === 0)
 			{
 				Event::add('ushahidi_filter.get_neighbouring_incidents_sql', array('Sharing', 'get_neighbouring_incidents_sql'));

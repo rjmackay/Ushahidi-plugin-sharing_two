@@ -1,16 +1,16 @@
-<?php 
+<?php
 /**
  * Comments view page.
  *
  * PHP version 5
- * LICENSE: This source file is subject to LGPL license 
+ * LICENSE: This source file is subject to LGPL license
  * that is available through the world-wide-web at the following URI:
  * http://www.gnu.org/copyleft/lesser.html
- * @author     Ushahidi Team <team@ushahidi.com> 
+ * @author     Ushahidi Team <team@ushahidi.com>
  * @package    Ushahidi - http://source.ushahididev.com
  * @module     API Controller
  * @copyright  Ushahidi - http://www.ushahidi.com
- * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
+ * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
  */
 ?>
 			<div class="bg">
@@ -34,7 +34,7 @@
 							<li><a href="#" onclick="commentAction('s','MARK AS SPAM', '');"><?php echo utf8::strtoupper(Kohana::lang('ui_main.spam'));?></a></li>
 							<li><a href="#" onclick="commentAction('n','MARK AS NOT SPAM', '');"><?php echo utf8::strtoupper(Kohana::lang('ui_main.not_spam'));?></a></li>
 							<li><a href="#" onclick="commentAction('d','DELETE', '');"><?php echo utf8::strtoupper(Kohana::lang('ui_main.delete'));?></a></li>
-							<?php 
+							<?php
 							if ($status == 's')
 							{
 								?>
@@ -127,7 +127,7 @@
 										<td class="col-2">
 											<div class="post">
 												<?php
-												if ( $sharing_incident_comment AND $sharing_incident_comment->loaded) 
+												if ( $sharing_incident_comment AND $sharing_incident_comment->loaded)
 												{ ?>
 												<h4><a href="<?php echo url::base() . 'reports/sharing/view/' . $incident_id; ?>"><?php echo html::specialchars($comment_author); ?></a></h4>
 												<?php

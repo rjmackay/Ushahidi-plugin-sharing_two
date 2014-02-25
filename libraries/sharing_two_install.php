@@ -76,7 +76,7 @@ class Sharing_two_Install {
 			  UNIQUE KEY `sharing_incident_media_ids` (`sharing_incident_id`,`media_id`)
 			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Stores shared reports media'
 			");
-			
+
 			$this->db->query("
 			CREATE TABLE IF NOT EXISTS `".Kohana::config('database.default.table_prefix')."sharing_incident_comment` (
 			  `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -86,7 +86,7 @@ class Sharing_two_Install {
 			  UNIQUE KEY `sharing_incident_comment_ids` (`sharing_incident_id`,`comment_id`)
 			) ENGINE=MyISAM AUTO_INCREMENT=14064 DEFAULT CHARSET=utf8 COMMENT='Stores shared reports comments'
 			");
-			
+
 			$this->db->query("
 			CREATE TABLE IF NOT EXISTS `".Kohana::config('database.default.table_prefix')."sharing_category`
 			(
@@ -100,7 +100,7 @@ class Sharing_two_Install {
 			  UNIQUE KEY `remote_category_id` (`sharing_site_id`,`remote_category_id`)
 			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Stores shared categories'
 			");
-			
+
 			// Create view for querying
 			$this->db->query("
 			CREATE OR REPLACE ALGORITHM=UNDEFINED DEFINER=CURRENT_USER SQL SECURITY INVOKER VIEW `sharing_combined_incident` AS
@@ -127,7 +127,7 @@ class Sharing_two_Install {
 					`sharing_incident`.`sharing_site_id` AS `source`
 				FROM `sharing_incident`
 			");
-			
+
 			$this->db->query("
 			CREATE OR REPLACE ALGORITHM=UNDEFINED DEFINER=CURRENT_USER SQL SECURITY INVOKER VIEW `sharing_combined_incident_category` AS
 				SELECT `incident_category`.`incident_id` AS `incident_id`,
@@ -141,10 +141,10 @@ class Sharing_two_Install {
                   `sharing_incident_category`.`category_id` AS `category_id`
 				FROM `sharing_incident_category`
 			");
-			
+
 			//Dump the sharing scheduler item from bundled SQL dump file
 			$this->db->query("DELETE FROM `".Kohana::config('database.default.table_prefix')."scheduler` where scheduler_name = 'Sharing' ");
-			
+
 			// Add sharing in to scheduler table
 			$this->db->query("INSERT IGNORE INTO `".Kohana::config('database.default.table_prefix')."scheduler`
 				(`scheduler_name`,`scheduler_last`,`scheduler_weekday`,`scheduler_day`,`scheduler_hour`,`scheduler_minute`,`scheduler_controller`,`scheduler_active`) VALUES

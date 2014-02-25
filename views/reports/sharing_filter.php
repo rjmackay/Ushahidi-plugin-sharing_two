@@ -16,7 +16,7 @@
 									<div><?php echo Kohana::config('settings.site_name') ?></div>
 								</a></li>
 								<?php
-								
+
 								foreach ($sites as $site)
 								{
 									$class = (Kohana::config('sharing_two.default_sharing_filter') == $site->id) ? "selected" : '';

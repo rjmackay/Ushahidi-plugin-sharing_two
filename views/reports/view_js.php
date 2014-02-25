@@ -5,14 +5,14 @@
  * Handles javascript stuff related to reports view function.
  *
  * PHP version 5
- * LICENSE: This source file is subject to LGPL license 
+ * LICENSE: This source file is subject to LGPL license
  * that is available through the world-wide-web at the following URI:
  * http://www.gnu.org/copyleft/lesser.html
- * @author     Ushahidi Team <team@ushahidi.com> 
+ * @author     Ushahidi Team <team@ushahidi.com>
  * @package    Ushahidi - http://source.ushahididev.com
  * @module     Reports Controller
  * @copyright  Ushahidi - http://www.ushahidi.com
- * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
+ * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
  */
 ?>
 
@@ -68,10 +68,10 @@ jQuery(window).load(function() {
 		graphicYOffset: -27
 	},
 	{
-		context: 
+		context:
 		{
 			graphic: function(feature) {
-				if (typeof(feature) != 'undefined' && 
+				if (typeof(feature) != 'undefined' &&
 					feature.data.id == <?php echo $incident_id; ?>)
 				{
 					return "<?php echo url::file_loc('img').'media/img/openlayers/marker.png' ;?>";
@@ -82,7 +82,7 @@ jQuery(window).load(function() {
 				}
 			},
 			fillcolor: function(feature) {
-				if ( typeof(feature.attributes.color) != 'undefined' && 
+				if ( typeof(feature.attributes.color) != 'undefined' &&
 					feature.attributes.color != '' )
 				{
 					return "#"+feature.attributes.color;
@@ -93,7 +93,7 @@ jQuery(window).load(function() {
 				}
 			},
 			strokecolor: function(feature) {
-				if ( typeof(feature.attributes.strokecolor) != 'undefined' && 
+				if ( typeof(feature.attributes.strokecolor) != 'undefined' &&
 					feature.attributes.strokecolor != '')
 				{
 					return "#"+feature.attributes.strokecolor;
@@ -102,9 +102,9 @@ jQuery(window).load(function() {
 				{
 					return "#CC0000";
 				}
-			},					
+			},
 			strokewidth: function(feature) {
-				if ( typeof(feature.attributes.strokewidth) != 'undefined' && 
+				if ( typeof(feature.attributes.strokewidth) != 'undefined' &&
 					feature.attributes.strokewidth != '')
 				{
 					return feature.attributes.strokewidth;
@@ -142,7 +142,7 @@ jQuery(window).load(function() {
 		url: "<?php echo isset($incident_json_url) ? $incident_json_url : 'json/single/'.$incident_id; ?>",
 		styleMap: styleMap
 	});
-	
+
 	// Ajax Validation for the comments
 	$("#commentForm").validate({
 		rules: {
@@ -180,7 +180,7 @@ jQuery(window).load(function() {
 			}
 		}
 	});
-	
+
 	// Handles the functionality for changing the size of the map
 	// TODO: make the CSS widths dynamic... instead of hardcoding, grab the width's
 	// from the appropriate parent divs
@@ -213,7 +213,7 @@ jQuery(window).load(function() {
 				$('.report-map').show();
 				break;
 		};
-		
+
 		map.trigger("resize");
 		return false;
 	});
@@ -251,4 +251,4 @@ function rating(id,action,type,loader) {
 			$('#' + loader).html('');
 	  	}, "json");
 }
-		
+

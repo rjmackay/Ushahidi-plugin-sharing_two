@@ -26,4 +26,3 @@ class sharing_helper_Core {
 		return $url;
 	}
 }
-	

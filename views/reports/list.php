@@ -3,13 +3,13 @@
  * View file for updating the reports display
  *
  * PHP version 5
- * LICENSE: This source file is subject to LGPL license 
+ * LICENSE: This source file is subject to LGPL license
  * that is available through the world-wide-web at the following URI:
  * http://www.gnu.org/copyleft/lesser.html
  * @author     Ushahidi Team - http://www.ushahidi.com
  * @package    Ushahidi - http://source.ushahididev.com
  * @copyright  Ushahidi - http://www.ushahidi.com
- * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
+ * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
  */
 ?>
 		<!-- Top reportbox section-->
@@ -35,7 +35,7 @@
 			</table>
 		</div>
 		<!-- /Top reportbox section-->
-		
+
 		<!-- Report listing -->
 		<div class="r_cat_tooltip"><a href="#" class="r-3"></a></div>
 		<div class="rb_list-and-map-box">
@@ -82,7 +82,7 @@
 						$media = ORM::Factory('media')->where('incident_id', $incident_id)->find_all();
 					else
 						$media = ORM::Factory('media')->join('sharing_incident_media', 'media_id', 'media.id')->where('sharing_incident_id', $incident_id)->find_all();
-					
+
 					if ($media->count())
 					{
 						foreach ($media as $photo)
@@ -112,21 +112,21 @@
 								$categories = ORM::Factory('category')->join('incident_category', 'category_id', 'category.id')->where('incident_id', $incident_id)->find_all();
 							else
 								$categories = ORM::Factory('category')->join('sharing_incident_category', 'category_id', 'category.id')->where('sharing_incident_id', $incident_id)->find_all();
-							
+
 							foreach ($categories as $category): ?>
-								
+
 								<?php // Don't show hidden categories ?>
 								<?php if($category->category_visible == 0) continue; ?>
-						
+
 								<?php if ($category->category_image_thumb): ?>
 									<?php $category_image = url::site(Kohana::config('upload.relative_directory')."/".$category->category_image_thumb); ?>
 									<a class="r_category" href="<?php echo url::site("reports/?c=$category->id") ?>">
-										<span class="r_cat-box"><img src="<?php echo $category_image; ?>" height="16" width="16" /></span> 
+										<span class="r_cat-box"><img src="<?php echo $category_image; ?>" height="16" width="16" /></span>
 										<span class="r_cat-desc"><?php echo Category_Lang_Model::category_title($category->id); ?></span>
 									</a>
 								<?php else:	?>
 									<a class="r_category" href="<?php echo url::site("reports/?c=$category->id") ?>">
-										<span class="r_cat-box" style="background-color:#<?php echo $category->category_color;?>;"></span> 
+										<span class="r_cat-box" style="background-color:#<?php echo $category->category_color;?>;"></span>
 										<span class="r_cat-desc"><?php echo Category_Lang_Model::category_title($category->id); ?></span>
 									</a>
 								<?php endif; ?>
@@ -143,13 +143,13 @@
 								<?php echo htmlentities($incident_title, ENT_QUOTES, "UTF-8"); ?>
 							</a>
 							<a href="<?php echo "$incident_url#discussion"; ?>" class="r_comments">
-								<?php echo $comment_count; ?></a> 
+								<?php echo $comment_count; ?></a>
 								<?php echo $incident_verified; ?>
 							</h3>
 						<p class="r_date r-3 bottom-cap"><?php echo $incident_date; ?></p>
-						<div class="r_description"> <?php echo $incident_description; ?>  
-						  <a class="btn-show btn-more" href="#incident_<?php echo $incident_id ?>"><?php echo Kohana::lang('ui_main.more_information'); ?> &raquo;</a> 
-						  <a class="btn-show btn-less" href="#incident_<?php echo $incident_id ?>">&laquo; <?php echo Kohana::lang('ui_main.less_information'); ?></a> 
+						<div class="r_description"> <?php echo $incident_description; ?>
+						  <a class="btn-show btn-more" href="#incident_<?php echo $incident_id ?>"><?php echo Kohana::lang('ui_main.more_information'); ?> &raquo;</a>
+						  <a class="btn-show btn-less" href="#incident_<?php echo $incident_id ?>">&laquo; <?php echo Kohana::lang('ui_main.less_information'); ?></a>
 						</div>
 						<p class="r_location"><a href="<?php echo url::site("reports/?l=$location_id"); ?>"><?php echo html::specialchars($location_name); ?></a></p>
 						<?php
@@ -164,7 +164,7 @@
 			</div>
 		</div>
 		<!-- /Report listing -->
-		
+
 		<!-- Bottom paginator -->
 		<div class="rb_nav-controls r-5">
 			<table border="0" cellspacing="0" cellpadding="0">
@@ -188,4 +188,4 @@
 			</table>
 		</div>
 		<!-- /Bottom paginator -->
-	        
+

@@ -206,7 +206,7 @@
 
 		<div class="report-additional-reports">
 			<h4><?php echo Kohana::lang('ui_main.additional_reports');?></h4>
-			<?php foreach($incident_neighbors as $neighbor) { 
+			<?php foreach($incident_neighbors as $neighbor) {
 				$neighbor_url = url::site("reports/view/$neighbor->id");
 				if (isset($neighbor->source) AND $neighbor->source != 'main')
 				{

@@ -18,7 +18,7 @@ class Share_Controller extends Json_Controller {
 
 	/**
 	 * Retrieve Single Marker (and its neighbours)
-	 * 
+	 *
 	 * @param int $incident_id
 	 */
 	public function single($incident_id = 0)
@@ -40,8 +40,8 @@ class Share_Controller extends Json_Controller {
 		{
 			throw new Kohana_404_Exception();
 		}
-		
-		// Get geojson features for main incident (including geometry) 
+
+		// Get geojson features for main incident (including geometry)
 		$json_features = $this->markers_geojson(array($marker), 0, null, null, TRUE);
 
 		// Get the neigbouring incidents & their json (without geometries)

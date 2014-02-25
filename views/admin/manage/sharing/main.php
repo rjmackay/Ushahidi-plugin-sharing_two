@@ -1,16 +1,16 @@
-<?php 
+<?php
 /**
  * Sharing view page.
  *
  * PHP version 5
- * LICENSE: This source file is subject to LGPL license 
+ * LICENSE: This source file is subject to LGPL license
  * that is available through the world-wide-web at the following URI:
  * http://www.gnu.org/copyleft/lesser.html
- * @author     Ushahidi Team <team@ushahidi.com> 
+ * @author     Ushahidi Team <team@ushahidi.com>
  * @package    Ushahidi - http://source.ushahididev.com
  * @module     Sharing view
  * @copyright  Ushahidi - http://www.ushahidi.com
- * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
+ * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
  */
 ?>
 			<div class="bg">
@@ -78,7 +78,7 @@
 												<h3><?php echo Kohana::lang('ui_main.no_results');?></h3>
 											</td>
 										</tr>
-									<?php	
+									<?php
 									}
 									foreach ($sites as $site)
 									{
@@ -128,7 +128,7 @@
 												</ul>
 											</td>
 										</tr>
-										<?php									
+										<?php
 									}
 									?>
 								</tbody>
@@ -136,7 +136,7 @@
 						</div>
 					<?php print form::close(); ?>
 				</div>
-				
+
 				<!-- tabs -->
 				<div class="tabs">
 					<!-- tabset -->
@@ -147,9 +147,9 @@
 					<!-- tab -->
 					<div class="tab">
 						<?php print form::open(NULL,array('id' => 'sharingMain', 'name' => 'sharingMain')); ?>
-						<input type="hidden" id="site_id" 
+						<input type="hidden" id="site_id"
 							name="site_id" value="" />
-						<input type="hidden" name="action" 
+						<input type="hidden" name="action"
 							id="action" value="a"/>
 						<div class="tab_form_item">
 							<strong><?php echo Kohana::lang('ui_main.name');?>:</strong><br />
@@ -193,7 +193,7 @@
 						<div class="tab_form_item">
 							<input type="submit" class="save-rep-btn" value="<?php echo Kohana::lang('ui_main.save');?>" />
 						</div>
-						<?php print form::close(); ?>			
+						<?php print form::close(); ?>
 					</div>
 				</div>
 			</div>

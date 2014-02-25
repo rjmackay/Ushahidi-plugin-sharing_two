@@ -4,17 +4,21 @@
  * Support functions for sharing plugin
  *
  * PHP version 5
- * LICENSE: This source file is subject to LGPL license 
+ * LICENSE: This source file is subject to LGPL license
  * that is available through the world-wide-web at the following URI:
  * http://www.gnu.org/copyleft/lesser.html
  * @author	   Robbie Mackay <rm@robbiemackay.com>
  * @package    Ushahidi - http://source.ushahididev.com
  * @copyright  Ushahidi - http://www.ushahidi.com
- * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
+ * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
  */
 
 class Sharing {
-	
+
+	/**
+	 * [routing description]
+	 * @return [type] [description]
+	 */
 	public static function routing()
 	{
 		if (Router::$current_uri == 'json/index' OR Router::$current_uri == 'json/cluster' OR Router::$current_uri == 'json')
@@ -22,24 +26,28 @@ class Sharing {
 			Router::$current_uri = str_replace('json','json/share', Router::$current_uri);
 		}
 	}
-	
+
+	/**
+	 * [process_get_param description]
+	 * @return [type] [description]
+	 */
 	public static function process_get_param()
 	{
 		// Quick hack to set default sharing value
 		! isset($_GET['sharing']) ? $_GET['sharing'] = Kohana::config('sharing_two.default_sharing_filter') : null;
-		
+
 		// Ensure sharing is an array
 		if (! is_array($_GET['sharing']))
 		{
 			$_GET['sharing'] = array($_GET['sharing']);
 		}
-		
+
 		if (($key = array_search('all', $_GET['sharing'])) !== FALSE)
 		{
 			unset($_GET['sharing'][$key]);
 		}
 	}
-	
+
 
 	public static function sharing_admin_nav()
 	{
@@ -57,7 +65,7 @@ class Sharing {
 			->where('site_active', 1)
 			->where('share_reports', 1)
 			->find_all();
-		
+
 		if (count($sites) == 0) return;
 
 		$sharing_bar = View::factory('sharing/sharing_bar');
@@ -65,7 +73,7 @@ class Sharing {
 		$sharing_bar->sites = $sites;
 		$sharing_bar->render(TRUE);
 	}
-	
+
 	/**
 	 * Loads the JavaScript for the sharing sidebar
 	 */
@@ -74,7 +82,7 @@ class Sharing {
 		$js = View::factory('js/sharing_bar_js');
 		$js->render(TRUE);
 	}
-	
+
 	/**
 	 * Callback for ushahidi_filter.fetch_incidents_set_params
 	 * Add filter for source to incidents query
@@ -82,16 +90,16 @@ class Sharing {
 	public function fetch_incidents_set_params()
 	{
 		$params = Event::$data;
-		
+
 		if (! empty($_GET['sharing']))
 		{
 			$sharing = $_GET['sharing'];
-			
+
 			// escape and implode values
 			$sharing = '('.implode(', ', array_map(array(Database::instance(), 'escape'), $sharing)).')';
 			$params[] = "i.source IN $sharing";
 		}
-		
+
 		if (! empty($_GET['m']))
 		{
 			$media_types = $_GET['m'];
@@ -100,11 +108,11 @@ class Sharing {
 			{
 				$media_types = explode(',',$media_types);
 			}
-			
+
 			// An array of media filters has been specified
 			// Validate the media types
 			$media_types = array_map('intval', $media_types);
-			
+
 			if (count($media_types) > 0)
 			{
 				$media_types = implode(",", $media_types);
@@ -120,10 +128,10 @@ class Sharing {
 				)";
 			}
 		}
-		
+
 		Event::$data = $params;
 	}
-	
+
 	/*
 	 * Callback for ushahidi_filter.get_incidents_sql
 	 * Swap incidents table for combined incident view
@@ -131,23 +139,23 @@ class Sharing {
 	public function get_incidents_sql()
 	{
 		$sql = Event::$data;
-		
+
 		$sql = str_replace(
 			Kohana::config('database.default.table_prefix').'incident i ',
 			Kohana::config('database.default.table_prefix').'sharing_combined_incident i ',
 			$sql
 		);
-		
+
 		$sql = str_replace('i.id incident_id', 'i.id incident_id, i.source ', $sql);
-		
+
 		$sql = str_replace(Kohana::config('database.default.table_prefix')."incident_category ic ON (ic.incident_id = i.id) ",
 			Kohana::config('database.default.table_prefix')."sharing_combined_incident_category ic ON ((ic.incident_id = i.id AND i.source = 'main') OR (ic.sharing_incident_id = i.id AND i.source != 'main')) ",
 			$sql
 		);
-		
+
 		Event::$data = $sql;
 	}
-	
+
 	/*
 	 * Callback for ushahidi_filter.get_neighbouring_incidents_sql
 	 * Swap incidents table for combined incident view
@@ -155,16 +163,16 @@ class Sharing {
 	public function get_neighbouring_incidents_sql()
 	{
 		$sql = Event::$data;
-		
+
 		$sql = str_replace(
 			'`'.Kohana::config('database.default.table_prefix').'incident` AS i ',
 			'`'.Kohana::config('database.default.table_prefix').'sharing_combined_incident` AS i ',
 			$sql
 		);
-		
+
 		Event::$data = $sql;
 	}
-	
+
 	/**
 	 * Callback for ushahidi_action.report_filters_ui
 	 * Render sharing site filter
@@ -177,7 +185,7 @@ class Sharing {
 					->find_all();
 		$filter->render(TRUE);
 	}
-	
+
 	/**
 	 * Callback for ushahidi_action.report_js_filterReportsAction
 	 * Render js for handling sharing site filter
@@ -186,18 +194,18 @@ class Sharing {
 	{
 		View::factory('reports/sharing_filter_js')->render(TRUE);
 	}
-	
+
 	/**
 	 * Alter color if we're showing chared markers on main page
 	 */
 	public function json_alter_params()
 	{
 		$params = Event::$data;
-		
+
 		// Category ID
 		$category_id = (isset($_GET['c']) AND intval($_GET['c']) > 0) ? intval($_GET['c']) : 0;
 		// We're going to assume the category id is always valid.
-		
+
 		// Get sharing site info
 		// Check we're filtered to a single country site
 		if (! empty($_GET['sharing']))
@@ -218,10 +226,10 @@ class Sharing {
 				}
 			}
 		}
-		
+
 		Event::$data = $params;
 	}
-	
+
 	/**
 	 * Alter markers before conversion to geojson
 	 * add URL to shared markers
@@ -230,7 +238,7 @@ class Sharing {
 	{
 		$markers = Event::$data;
 		$markers = $markers->as_array();
-		
+
 		foreach ($markers as $key => $marker)
 		{
 			if (isset($marker->source) AND $marker->source != 'main')
@@ -238,7 +246,7 @@ class Sharing {
 				$markers[$key]->url = Sharing_Incident_Model::get_url($marker);
 			}
 		}
-		
+
 		Event::$data = $markers;
 	}
 }

@@ -14,7 +14,7 @@
  */
 
 class Sharing_Controller extends Main_Controller {
-	
+
 	/**
 	 * Whether an admin console user is logged in
 	 * @var bool
@@ -52,9 +52,9 @@ class Sharing_Controller extends Main_Controller {
 				->where('id', $id)
 				->where('incident_active',1)
 				->find();
-				
+
 			// Not Found
-			if ( ! $incident->loaded) 
+			if ( ! $incident->loaded)
 			{
 				url::redirect('reports/');
 			}
@@ -185,7 +185,7 @@ class Sharing_Controller extends Main_Controller {
 						$comment->comment_active = (Kohana::config('settings.allow_comments') == 1)? 1 : 0;
 					}
 					$comment->save();
-					
+
 					// link comment to sharing_incident
 					$incident_comment = ORM::factory('sharing_incident_comment');
 					$incident_comment->comment_id = $comment->id;
@@ -232,7 +232,7 @@ class Sharing_Controller extends Main_Controller {
 			// hardcode geometries to empty
 			$this->template->content->features_count = 0;
 			$this->template->content->features = array();
-			
+
 			$this->template->content->incident_id = $incident->id;
 			$this->template->content->incident_title = $incident_title;
 			$this->template->content->incident_description = $incident_description;
@@ -248,7 +248,7 @@ class Sharing_Controller extends Main_Controller {
 					->join('incident','incident.id','rating.incident_id','INNER')
 					->where('rating.incident_id',$incident->id)
 					->find();
-					
+
 			$this->template->content->incident_rating = ($rating->rating == '')
 				? 0
 				: $rating->rating;
@@ -296,7 +296,7 @@ class Sharing_Controller extends Main_Controller {
 		{
 			url::redirect('reports');
 		}
-		
+
 		// Add extra info to meta
 		Event::add('ushahidi_action.report_display_media', array($this, 'report_display_media'));
 
@@ -356,10 +356,10 @@ class Sharing_Controller extends Main_Controller {
 		$this->template->header->header_block = $this->themes->header_block();
 		$this->template->footer->footer_block = $this->themes->footer_block();
 	}
-	
+
 	/*
 	 * Add extra info to report meta: link to origin site
-	 * 
+	 *
 	 */
 	public function report_display_media()
 	{
@@ -368,7 +368,7 @@ class Sharing_Controller extends Main_Controller {
 			->with('sharing_site')
 			->where('sharing_incident.id', $id)
 			->find();
-		
+
 		echo '<h3>'.html::anchor(
 			$incident->sharing_site->site_url.'/reports/view/'.$incident->remote_incident_id,
 			Kohana::lang('sharing_two.view_original', array($incident->sharing_site->site_name))

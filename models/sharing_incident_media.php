@@ -4,20 +4,20 @@
  * Model for media for each sharing incidents
  *
  * PHP version 5
- * LICENSE: This source file is subject to LGPL license 
+ * LICENSE: This source file is subject to LGPL license
  * that is available through the world-wide-web at the following URI:
  * http://www.gnu.org/copyleft/lesser.html
- * @author     Ushahidi Team <team@ushahidi.com> 
+ * @author     Ushahidi Team <team@ushahidi.com>
  * @package    Ushahidi - http://source.ushahididev.com
  * @subpackage Models
  * @copyright  Ushahidi - http://www.ushahidi.com
- * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL) 
+ * @license    http://www.gnu.org/copyleft/lesser.html GNU Lesser General Public License (LGPL)
  */
 
 class Sharing_Incident_Media_Model extends ORM
 {
 	protected $belongs_to = array('sharing_incident', 'media');
-	
+
 	// Database table name
 	protected $table_name = 'sharing_incident_media';
 }
