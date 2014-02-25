@@ -92,10 +92,11 @@ class Sharing {
 			$params[] = "i.source IN $sharing";
 		}
 		
-		if (isset($_GET['m']))
+		if (! empty($_GET['m']))
 		{
 			$media_types = $_GET['m'];
-			if (!is_array($media_types))
+
+			if (! is_array($media_types))
 			{
 				$media_types = explode(',',$media_types);
 			}
