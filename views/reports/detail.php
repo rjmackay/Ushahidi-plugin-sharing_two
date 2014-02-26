@@ -14,7 +14,7 @@
   	  ?>
 
 		<h1 class="report-title"><?php
-			echo strip_tags($incident_title);
+			echo html::escape($incident_title);
 
 			// If Admin is Logged In - Allow For Edit Link
 			if ($logged_in)
@@ -40,20 +40,21 @@
 					{
 						continue;
 					}
-
-				  if ($category->category->category_image_thumb)
+					if ($category->category->category_image_thumb)
 					{
-					?>
-					<a href="<?php echo url::site()."reports/?c=".$category->category->id; ?>"><span class="r_cat-box" style="background:transparent url(<?php echo url::base().Kohana::config('upload.relative_directory')."/".$category->category->category_image_thumb; ?>) 0 0 no-repeat;">&nbsp;</span> <?php echo $category->category->category_title; ?></a>
-
-					<?php
+						$style = "background:transparent url(".url::convert_uploaded_to_abs($category->category->category_image_thumb).") 0 0 no-repeat";
 					}
 					else
 					{
+						$style = "background-color:#".$category->category->category_color;
+					}
+
 					?>
-					  <a href="<?php echo url::site()."reports/?c=".$category->category->id; ?>"><span class="r_cat-box" style="background-color:#<?php echo $category->category->category_color; ?>">&nbsp;</span> <?php echo $category->category->category_title; ?></a>
-				  <?php
-				  }
+					<a href="<?php echo url::site()."reports/?c=".$category->category->id; ?>" title="<?php echo Category_Lang_Model::category_description($category->category_id);; ?>">
+						<span class="r_cat-box" style="<?php echo $style ?>">&nbsp;</span>
+						<?php echo Category_Lang_Model::category_title($category->category_id); ?>
+					</a>
+					<?php
 				}
 			?>
 			</p>
@@ -70,40 +71,39 @@
 
 		<!-- start report media -->
 		<div class="<?php if( count($incident_photos) > 0 || count($incident_videos) > 0){ echo "report-media";}?>">
-	    <?php
-	    // if there are images, show them
-	    if( count($incident_photos) > 0 )
-	    {
-			echo '<div id="report-images">';
-			foreach ($incident_photos as $photo)
+			<?php
+			// if there are images, show them
+			if( count($incident_photos) > 0 )
 			{
-				echo '<a class="photothumb" rel="lightbox-group1" href="'.$photo['large'].'"><img src="'.$photo['thumb'].'"/></a> ';
-			};
-			echo '</div>';
-	    }
+				echo '<div id="report-images">';
+				foreach ($incident_photos as $photo)
+				{
+					echo '<a class="photothumb" rel="lightbox-group1" href="'.$photo['large'].'"><img alt="'.html::escape($incident_title).'" src="'.$photo['thumb'].'"/></a> ';
+				};
+				echo '</div>';
+			}
 
-	    // if there are videos, show those too
-	    if( count($incident_videos) > 0 )
-	    {
-	      echo '<div id="report-video"><ol>';
+			// if there are videos, show those too
+			if( count($incident_videos) > 0 )
+			{
+				echo "<div id=\"report-video\"><ul>\n";
+				// embed the video codes
+				foreach( $incident_videos as $incident_video)
+				{
+					echo "<li>\n\t";
+					echo $videos_embed->embed($incident_video, FALSE, FALSE);
+					echo "\n</li>\n";
+				};
+  			echo "</ul></div>";
 
-          // embed the video codes
-          foreach( $incident_videos as $incident_video)
-          {
-            echo '<li>';
-            $videos_embed->embed($incident_video,'');
-            echo '</li>';
-          };
-  			echo '</ol></div>';
-
-	    }
-	    ?>
+			}
+			?>
 		</div>
 
 		<!-- start report description -->
 		<div class="report-description-text">
 			<h5><?php echo Kohana::lang('ui_main.reports_description');?></h5>
-			<?php echo $incident_description; ?>
+			<?php echo html::clean(nl2br($incident_description)); ?>
 			<br/>
 
 
@@ -190,10 +190,10 @@
 			<div id="report-map" class="report-map">
 				<div class="map-holder" id="map"></div>
         <ul class="map-toggles">
-          <li><a href="#" class="smaller-map">Smaller map</a></li>
-          <li style="display:block;"><a href="#" class="wider-map">Wider map</a></li>
-          <li><a href="#" class="taller-map">Taller map</a></li>
-          <li><a href="#" class="shorter-map">Shorter Map</a></li>
+          <li><a href="#" class="smaller-map"><?php echo Kohana::lang('ui_main.smaller_map'); ?></a></li>
+          <li style="display:block;"><a href="#" class="wider-map"><?php echo Kohana::lang('ui_main.wider_map'); ?></a></li>
+          <li><a href="#" class="taller-map"><?php echo Kohana::lang('ui_main.taller_map'); ?></a></li>
+          <li><a href="#" class="shorter-map"><?php echo Kohana::lang('ui_main.shorter_map'); ?></a></li>
         </ul>
         <div style="clear:both"></div>
 			</div>
