@@ -39,7 +39,7 @@ class Sharing {
 		// Ensure sharing is an array
 		if (! is_array($_GET['sharing']))
 		{
-			$_GET['sharing'] = array($_GET['sharing']);
+			$_GET['sharing'] = explode(',', $_GET['sharing']);
 		}
 
 		if (($key = array_search('all', $_GET['sharing'])) !== FALSE)
