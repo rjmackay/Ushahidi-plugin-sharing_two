@@ -16,8 +16,7 @@
 class Sharing {
 
 	/**
-	 * [routing description]
-	 * @return [type] [description]
+	 * Modify routing and direct /json to /json/share
 	 */
 	public static function routing()
 	{
@@ -28,8 +27,9 @@ class Sharing {
 	}
 
 	/**
-	 * [process_get_param description]
-	 * @return [type] [description]
+	 * Process 'sharing' query param
+	 *
+	 * Set the default and make sure its an array.
 	 */
 	public static function process_get_param()
 	{
