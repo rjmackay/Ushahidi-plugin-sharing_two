@@ -150,6 +150,34 @@ class Sharing_two_Install {
 				(`scheduler_name`,`scheduler_last`,`scheduler_weekday`,`scheduler_day`,`scheduler_hour`,`scheduler_minute`,`scheduler_controller`,`scheduler_active`) VALUES
 				('Sharing','0','-1','-1','-1','-1','s_sharing','1')"
 			);
+
+
+
+		// Add Other category to the categories list (if it doesn't exist already)
+		$category = ORM::factory('Category', Settings_Model::get_setting('sharing_other_category_id'));
+		$categoryname = "Other";
+		$categorydesc =  "Category with reports that couldn't be categorised from other deployments"; //FIXIT: need to l10n this
+
+		$this->existing_categories = ORM::factory('category')->select_list('category_title','id');
+
+		if (! $category->loaded)
+		{
+			$this->notices[] = Kohana::lang('import.new_category') . $categoryname;
+			$category = new Category_Model;
+			$category->category_title = $categoryname;
+
+			// We'll use grey for now. Maybe something random?
+			$category->category_color = '000000';
+			$category->category_visible = 1; // FIXIT: We need to make this zero for non-central deployments?
+			$category->category_trusted = 1; // Trusted - can't delete
+			$category->category_description = $categorydesc;
+			$category->category_position = count($this->existing_categories);
+			$category->save();
+
+			Settings_Model::save_setting('sharing_other_category_id', $category->id);
+		}
+
+
 	}
 
 	/**
