@@ -116,7 +116,6 @@ class S_Sharing_Controller extends Controller {
 			}
 			$existing_items = $array;
 
-
 			// Parse Incidents Into Database
 			$count = 0;
 			foreach($response->getIncidents() as $remote_incident_id => $incident_json)
@@ -141,61 +140,57 @@ class S_Sharing_Controller extends Controller {
 				{
 					$category_titles[] = $category->category_title;
 				}
-
-				// If matching categories, load them up
 				$categories = ORM::factory('category')->in('category_title', $category_titles)->find_all();
 
-				// Otherwise default to "Other" category
-				if ($categories->count() == 0)
+				// If matching categories, finish process and save report
+				// Otherwise just bump the counters and coninute
+				if ($categories->count() != 0)
 				{
-					$categories = array(ORM::factory('Category', Settings_Model::get_setting('sharing_other_category_id')));
+					// Handle location
+					$existing_location = $sharing_incident->location;
+					if ($existing_location->loaded) $existing_location->delete();
+					$incident_json['location']->save();
+					$sharing_incident->location_id = $incident_json['location']->id;
+
+					$sharing_incident->incident_title = $orm_incident->incident_title;
+					$sharing_incident->incident_description = $orm_incident->incident_description;
+					$sharing_incident->incident_date = $orm_incident->incident_date;
+					$sharing_incident->incident_mode = $orm_incident->incident_mode;
+					$sharing_incident->incident_active = $orm_incident->incident_active;
+					$sharing_incident->incident_verified = $orm_incident->incident_verified;
+					$sharing_incident->sharing_site_id = $site->id;
+					$sharing_incident->remote_incident_id = $remote_incident_id;
+					$sharing_incident->updated = date("Y-m-d H:i:s",time());
+					$sharing_incident->save();
+
+					// Save media
+					ORM::factory('sharing_incident_media')
+						->where('sharing_incident_id', $sharing_incident->id)
+						->delete_all();
+					foreach($incident_json['media'] as $media)
+					{
+						$media->save();
+						$new_sharing_incident_media = ORM::factory('sharing_incident_media');
+						$new_sharing_incident_media->media_id = $media->id;
+						$new_sharing_incident_media->sharing_incident_id = $sharing_incident->id;
+						$new_sharing_incident_media->save();
+					}
+
+					// Save categories
+					ORM::factory('sharing_incident_category')
+						->where('sharing_incident_id', $sharing_incident->id)
+						->delete_all();
+					foreach ($categories as $category)
+					{
+						$new_sharing_incident_category = ORM::factory('sharing_incident_category');
+						$new_sharing_incident_category->category_id = $category->id;
+						$new_sharing_incident_category->sharing_incident_id = $sharing_incident->id;
+						$new_sharing_incident_category->save();
+					}
+
+					// Save the primary key of the row we touched. We will be deleting ones that weren't touched.
+					$modified_ids[] = $sharing_incident->id;
 				}
-
-				// Handle location
-				$existing_location = $sharing_incident->location;
-				if ($existing_location->loaded) $existing_location->delete();
-				$incident_json['location']->save();
-				$sharing_incident->location_id = $incident_json['location']->id;
-
-				$sharing_incident->incident_title = $orm_incident->incident_title;
-				$sharing_incident->incident_description = $orm_incident->incident_description;
-				$sharing_incident->incident_date = $orm_incident->incident_date;
-				$sharing_incident->incident_mode = $orm_incident->incident_mode;
-				$sharing_incident->incident_active = $orm_incident->incident_active;
-				$sharing_incident->incident_verified = $orm_incident->incident_verified;
-				$sharing_incident->sharing_site_id = $site->id;
-				$sharing_incident->remote_incident_id = $remote_incident_id;
-				$sharing_incident->updated = date("Y-m-d H:i:s",time());
-				$sharing_incident->save();
-
-				// Save media
-				ORM::factory('sharing_incident_media')
-					->where('sharing_incident_id', $sharing_incident->id)
-					->delete_all();
-				foreach($incident_json['media'] as $media)
-				{
-					$media->save();
-					$new_sharing_incident_media = ORM::factory('sharing_incident_media');
-					$new_sharing_incident_media->media_id = $media->id;
-					$new_sharing_incident_media->sharing_incident_id = $sharing_incident->id;
-					$new_sharing_incident_media->save();
-				}
-
-				// Save categories
-				ORM::factory('sharing_incident_category')
-					->where('sharing_incident_id', $sharing_incident->id)
-					->delete_all();
-				foreach ($categories as $category)
-				{
-					$new_sharing_incident_category = ORM::factory('sharing_incident_category');
-					$new_sharing_incident_category->category_id = $category->id;
-					$new_sharing_incident_category->sharing_incident_id = $sharing_incident->id;
-					$new_sharing_incident_category->save();
-				}
-
-				// Save the primary key of the row we touched. We will be deleting ones that weren't touched.
-				$modified_ids[] = $sharing_incident->id;
-
 
 				// Save the highest pulled incident id so we can grab the next set from that id on
 				$since_id = $remote_incident_id;
@@ -354,13 +349,26 @@ class S_Sharing_Controller extends Controller {
 		{
 			$sharing_category = $existing_items[$remote_category_id];
 			$category = $sharing_category->category;
-		} else {
+		}
+		else
+		{
 			$sharing_category = ORM::factory('sharing_category');
-			$category = ORM::factory('category');
+
+			$same_title_category = ORM::factory('category')
+								->where('category_title', $remote_category->category_title)
+								->where('parent_id', $parent ? $parent->category_id : 0)
+								->find();
+
+
+			if ($same_title_category->loaded) {
+				$category = $same_title_category;
+			} else {
+				$category = ORM::factory('category');
+			}
 		}
 
 		$category->category_title = $remote_category->category_title;
-		$category->category_description = $remote_category->category_title;
+		$category->category_description = $remote_category->category_description;
 		$category->category_color = $remote_category->category_color;
 		$category->parent_id = $parent ? $parent->category_id : 0;
 		$category->category_position = $remote_category->category_position;
