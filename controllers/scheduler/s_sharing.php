@@ -349,13 +349,26 @@ class S_Sharing_Controller extends Controller {
 		{
 			$sharing_category = $existing_items[$remote_category_id];
 			$category = $sharing_category->category;
-		} else {
+		}
+		else
+		{
 			$sharing_category = ORM::factory('sharing_category');
-			$category = ORM::factory('category');
+
+			$same_title_category = ORM::factory('category')
+								->where('category_title', $remote_category->category_title)
+								->where('parent_id', $parent ? $parent->category_id : 0)
+								->find();
+
+
+			if ($same_title_category->loaded) {
+				$category = $same_title_category;
+			} else {
+				$category = ORM::factory('category');
+			}
 		}
 
 		$category->category_title = $remote_category->category_title;
-		$category->category_description = $remote_category->category_title;
+		$category->category_description = $remote_category->category_description;
 		$category->category_color = $remote_category->category_color;
 		$category->parent_id = $parent ? $parent->category_id : 0;
 		$category->category_position = $remote_category->category_position;
