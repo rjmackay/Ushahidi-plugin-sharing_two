@@ -152,29 +152,45 @@ class Sharing_two_Install {
 			);
 
 
-
 		// Add Other category to the categories list (if it doesn't exist already)
-		$category = ORM::factory('Category', Settings_Model::get_setting('sharing_other_category_id'));
 		$categoryname = "Other";
-		$categorydesc =  "Category with reports that couldn't be categorised from other deployments"; //FIXIT: need to l10n this
 
-		$this->existing_categories = ORM::factory('category')->select_list('category_title','id');
+		$other_category = ORM::factory('category')
+								->where('category_title', $categoryname)
+								->where('parent_id', 0)
+								->find();
 
-		if (! $category->loaded)
+		$current_other_category_id = Settings_Model::get_setting('sharing_other_category_id');
+
+		if ($other_category->loaded && empty($current_other_category_id))
 		{
-			$this->notices[] = Kohana::lang('import.new_category') . $categoryname;
-			$category = new Category_Model;
-			$category->category_title = $categoryname;
+			// We already have a category "Other", save setting
+			Settings_Model::save_setting('sharing_other_category_id', $other_category->id);
+		}
+		else
+		{
+			// No category named "Other". Do we have an id save though (maybe it's been renamed)
+			$category = ORM::factory('Category', Settings_Model::get_setting('sharing_other_category_id'));
 
-			// We'll use grey for now. Maybe something random?
-			$category->category_color = '000000';
-			$category->category_visible = 1; // FIXIT: We need to make this zero for non-central deployments?
-			$category->category_trusted = 1; // Trusted - can't delete
-			$category->category_description = $categorydesc;
-			$category->category_position = count($this->existing_categories);
-			$category->save();
+			if (! $category->loaded)
+			{
+				$this->notices[] = Kohana::lang('import.new_category') . $categoryname;
+				$category = new Category_Model;
+				$category->category_title = $categoryname;
 
-			Settings_Model::save_setting('sharing_other_category_id', $category->id);
+				// We'll use grey for now. Maybe something random?
+				$category->category_color = '000000';
+				$category->category_visible = 1; // FIXIT: We need to make this zero for non-central deployments?
+				$category->category_trusted = 1; // Trusted - can't delete
+				$category->category_description = "Category with reports that couldn't be categorised from other deployments"; //FIXIT: need to l10n this;
+
+				$this->existing_categories = ORM::factory('category')->select_list('category_title','id');
+				$category->category_position = count($this->existing_categories);
+				$category->save();
+
+				Settings_Model::save_setting('sharing_other_category_id', $category->id);
+			}
+
 		}
 
 
