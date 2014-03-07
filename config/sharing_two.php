@@ -12,3 +12,9 @@ $config = array();
  * 'all' 'main' or a sharing id
  */
 $config['default_sharing_filter'] = 'all';
+
+/**
+ * Enable/disable link to source report on
+ * reports/sharing/view/ID pages
+ */
+$config['show_link_to_source'] = FALSE;

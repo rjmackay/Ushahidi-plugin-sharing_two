@@ -363,6 +363,8 @@ class Sharing_Controller extends Main_Controller {
 	 */
 	public function report_display_media()
 	{
+		if (! Kohana::config('sharing_two.show_link_to_source')) return;
+
 		$id = Event::$data;
 		$incident = ORM::factory('sharing_incident')
 			->with('sharing_site')
