@@ -77,7 +77,7 @@ class S_Sharing_Controller extends Controller {
 		// @todo grab new reports first
 		while($more_reports_to_pull == TRUE)
 		{
-			$UshApiLib_Site_Info = new UshApiLib_Site_Info(sharing_helper::clean_url($site->site_url)."/api");
+			$UshApiLib_Site_Info = new UshApiLib_Site_Info(sharing_helper::clean_url($site->site_url)."/api", $site->site_username, $site->site_password);
 
 			$params = new UshApiLib_Incidents_Task_Parameter();
 			$params->setBy(UshApiLib_Incidents_Bys::INCIDENTS_SINCE_ID);
@@ -243,7 +243,7 @@ class S_Sharing_Controller extends Controller {
 	{
 		$modified_ids = array(); // this is an array of our primary keys
 
-		$UshApiLib_Site_Info = new UshApiLib_Site_Info(sharing_helper::clean_url($site->site_url)."/api");
+		$UshApiLib_Site_Info = new UshApiLib_Site_Info(sharing_helper::clean_url($site->site_url)."/api", $site->site_username, $site->site_password);
 
 		$params = new UshApiLib_Categories_Task_Parameter();
 

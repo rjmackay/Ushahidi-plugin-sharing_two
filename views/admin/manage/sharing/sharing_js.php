@@ -16,14 +16,16 @@
  */
 ?>
 // Sharing JS
-function fillFields(id, site_url, site_name, site_color, share_reports, share_categories)
+function fillFields(site)
 {
-	$("#site_id").attr("value", decodeURIComponent(id));
-	$("#site_name").attr("value", decodeURIComponent(site_name));
-	$("#site_url").attr("value", decodeURIComponent(site_url));
-	$("#site_color").attr("value", decodeURIComponent(site_color));
-	$("#share_reports").attr("checked", decodeURIComponent(share_reports) == 1);
-	$("#share_categories").attr("checked", decodeURIComponent(share_categories) == 1);
+	$("#site_id").attr("value", site.id);
+	$("#site_name").attr("value", site.site_name);
+	$("#site_url").attr("value", site.site_url);
+	$("#site_color").attr("value", site.site_color);
+	$("#share_reports").attr("checked", site.share_reports == 1);
+	$("#share_categories").attr("checked", site.share_categories == 1);
+	$("#site_username").attr("value", site.site_username);
+	$("#site_password").attr("value", site.site_password);
 }
 
 // Ajax Submission

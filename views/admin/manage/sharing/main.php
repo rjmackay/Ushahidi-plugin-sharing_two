@@ -116,15 +116,15 @@
 											</td>
 											<td class="col-4">
 												<ul>
-													<li class="none-separator"><a href="#add" onClick="fillFields('<?php echo(rawurlencode($site_id)); ?>','<?php echo(rawurlencode($site_url)); ?>','<?php echo(rawurlencode($site_name)); ?>','<?php echo(rawurlencode($site_color)); ?>','<?php echo(rawurlencode($site->share_reports)); ?>','<?php echo(rawurlencode($site->share_categories)); ?>')"><?php echo Kohana::lang('ui_main.edit');?></a></li>
+													<li class="none-separator"><a href="#add" onClick="fillFields(<?php echo html::escape(json_encode($site->as_array())); ?>)"><?php echo Kohana::lang('ui_main.edit');?></a></li>
 													<li class="none-separator">
 													<?php if($site_active) { ?>
-													<a href="javascript:sharingAction('h','HIDE',<?php echo rawurlencode($site_id);?>)" class="status_yes"><?php echo Kohana::lang('ui_main.visible');?></a>
+													<a href="javascript:sharingAction('h','HIDE',<?php echo html::escape($site_id);?>)" class="status_yes"><?php echo Kohana::lang('ui_main.visible');?></a>
 													<?php } else { ?>
-													<a href="javascript:sharingAction('v','SHOW',<?php echo rawurlencode($site_id);?>)" class="status_yes"><?php echo Kohana::lang('ui_main.hidden');?></a>
+													<a href="javascript:sharingAction('v','SHOW',<?php echo html::escape($site_id);?>)" class="status_yes"><?php echo Kohana::lang('ui_main.hidden');?></a>
 													<?php } ?>
 													</li>
-<li><a href="javascript:sharingAction('d','DELETE','<?php echo(rawurlencode($site_id)); ?>')" class="del"><?php echo Kohana::lang('ui_main.delete');?></a></li>
+<li><a href="javascript:sharingAction('d','DELETE','<?php echo html::escape($site_id); ?>')" class="del"><?php echo Kohana::lang('ui_main.delete');?></a></li>
 												</ul>
 											</td>
 										</tr>
@@ -180,6 +180,14 @@
 									});
 								});
 							</script>
+						</div>
+						<div class="tab_form_item">
+							<strong><?php echo Kohana::lang('ui_main.username');?>:</strong><br />
+							<?php print form::input('site_username', '', ' class="text"'); ?>
+						</div>
+						<div class="tab_form_item">
+							<strong><?php echo Kohana::lang('ui_main.password');?>:</strong><br />
+							<?php print form::input('site_password', '', ' class="text"'); ?>
 						</div>
 						<div class="tab_form_item">
 							<strong><?php echo Kohana::lang('sharing_two.share_reports');?>:</strong><br />

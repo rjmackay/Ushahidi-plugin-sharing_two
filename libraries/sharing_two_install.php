@@ -34,11 +34,23 @@ class Sharing_two_Install {
 				`site_active` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'sharing active or inactive ',
 				`share_categories` tinyint(4) NOT NULL DEFAULT '0' COMMENT 'sharing active or inactive ',
 				`share_reports` tinyint(4) NOT NULL DEFAULT '1' COMMENT 'sharing active or inactive ',
+				`site_username` varchar(150) NOT NULL COMMENT 'username for the remote site',
+				`site_password` varchar(150) NOT NULL COMMENT 'password for the remote site',
 				PRIMARY KEY (id)
 			) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COMMENT='Stores sites we are getting shared reports from'
 			");
 
-			$this->db->query("
+		$result = $this->db->query("SHOW COLUMNS FROM `sharing_site` LIKE 'site_username';");
+		if ($result->count() == 0)
+		{
+			$this->db->query('
+					ALTER TABLE `sharing_site`
+						ADD COLUMN `site_username` varchar(150) NOT NULL COMMENT \'username for the remote site\',
+						ADD COLUMN `site_password` varchar(150) NOT NULL COMMENT \'password for the remote site\'
+				');
+		}
+
+		$this->db->query("
 			CREATE TABLE IF NOT EXISTS `".Kohana::config('database.default.table_prefix')."sharing_incident`
 			(
 				`id` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,

@@ -70,6 +70,8 @@ class Sharing_Controller extends Admin_Controller
 				$post->add_rules('share_reports', 'range[0,1]');
 				$post->add_rules('share_categories', 'range[0,1]');
 				$post->add_callbacks('site_url', array($this,'url_exists_chk'));
+				$post->add_rules('site_username','length[0,150]');
+				$post->add_rules('site_password','length[0,150]');
 			}
 
 			if( $post->validate() )
@@ -120,6 +122,8 @@ class Sharing_Controller extends Admin_Controller
 					$site->site_color = $post->site_color;
 					$site->share_reports = $post->share_reports;
 					$site->share_categories = $post->share_categories;
+					$site->site_username = $post->site_username;
+					$site->site_password = $post->site_password;
 					$site->save();
 
 					$form_saved = TRUE;
