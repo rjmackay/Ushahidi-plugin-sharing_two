@@ -124,7 +124,8 @@ class Sharing_two_Install {
 					`incident`.`location_id` AS `location_id`,
 					`incident`.`incident_active` AS `incident_active`,
 					`incident`.`incident_verified` AS `incident_verified`,
-					'main' AS `source`
+					'main' AS `source`,
+					NULL AS `source_url`
 				FROM `incident`
 				UNION
 				SELECT
@@ -136,8 +137,11 @@ class Sharing_two_Install {
 					`sharing_incident`.`location_id` AS `location_id`,
 					`sharing_incident`.`incident_active` AS `incident_active`,
 					`sharing_incident`.`incident_verified` AS `incident_verified`,
-					`sharing_incident`.`sharing_site_id` AS `source`
+					`sharing_incident`.`sharing_site_id` AS `source`,
+					`sharing_site`.`site_url` AS `source_url`
 				FROM `sharing_incident`
+				LEFT JOIN `sharing_site`
+					ON (`sharing_incident`.`sharing_site_id` = `sharing_site`.`id`)
 			");
 
 			$this->db->query("
