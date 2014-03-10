@@ -126,6 +126,16 @@ class S_Sharing_Controller extends Controller {
 				}
 				$orm_incident = $incident_json['incident'];
 
+				// Was this report originally from this site?
+				if (! empty($incident_json['original']['incident']['sharingsourceurl']) AND
+					$incident_json['original']['incident']['sharingsourceurl'] == URL::site())
+				{
+					// Update counts and skip
+					$since_id = $remote_incident_id;
+					$count++;
+					continue;
+				}
+
 				// Check if we've saved this before.
 				if (isset($existing_items[$remote_incident_id]))
 				{
