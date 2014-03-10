@@ -199,9 +199,7 @@ class Sharing_two_Install {
 				$category->category_visible = 1; // FIXIT: We need to make this zero for non-central deployments?
 				$category->category_trusted = 1; // Trusted - can't delete
 				$category->category_description = "Category with reports that couldn't be categorised from other deployments"; //FIXIT: need to l10n this;
-
-				$this->existing_categories = ORM::factory('category')->select_list('category_title','id');
-				$category->category_position = count($this->existing_categories);
+				$category->category_position = ORM::factory('category')->count_all();
 				$category->save();
 
 				Settings_Model::save_setting('sharing_other_category_id', $category->id);
