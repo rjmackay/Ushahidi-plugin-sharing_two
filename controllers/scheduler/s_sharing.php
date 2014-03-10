@@ -98,7 +98,18 @@ class S_Sharing_Controller extends Controller {
 			{
 				if (isset($_GET['debug']) AND $_GET['debug'] == 1)
 				{
-					echo "Error Code: ". $response->getError_code() . " Message: ". $response->getError_message() . "<BR /><BR />";
+					$json = json_decode($task->getJson(), TRUE);
+					// Check for error code 007 - no results
+					if ($json['error']['code'] == '007')
+					{
+						echo "No results.<BR /><BR />";
+					}
+					// Some other error - dump the JSON
+					else
+					{
+						echo "Error Code: ". $response->getError_code() . " Message: ". $response->getError_message() . "<BR /><BR />";
+						var_dump($task->getJson());
+					}
 				}
 				return;
 			}
