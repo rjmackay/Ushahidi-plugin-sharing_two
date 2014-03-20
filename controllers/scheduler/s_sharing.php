@@ -127,6 +127,8 @@ class S_Sharing_Controller extends Controller {
 			}
 			$existing_items = $array;
 
+			$self_url_parsed = parse_url(URL::site());
+
 			// Parse Incidents Into Database
 			$count = 0;
 			foreach($response->getIncidents() as $remote_incident_id => $incident_json)
@@ -138,8 +140,14 @@ class S_Sharing_Controller extends Controller {
 				$orm_incident = $incident_json['incident'];
 
 				// Was this report originally from this site?
-				if (! empty($incident_json['original']['incident']['sharingsourceurl']) AND
-					$incident_json['original']['incident']['sharingsourceurl'] == URL::site())
+				// Using parse_url so we don't get fooled by tralining slashes or other url crazy bits
+				if (! empty($incident_json['original']['incident']['sharingsourceurl'])) {
+					$source_url_parsed = parse_url($incident_json['original']['incident']['sharingsourceurl']);
+				} else {
+					$source_url_parsed = array("host" => NULL);
+				}
+
+				if ($source_url_parsed["host"] == $self_url_parsed["host"])
 				{
 					// Update counts and skip
 					$since_id = $remote_incident_id;
