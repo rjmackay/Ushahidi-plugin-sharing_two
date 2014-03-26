@@ -192,7 +192,7 @@ class S_Sharing_Controller extends Controller {
 
 				$sharing_incident->incident_title = $orm_incident->incident_title;
 				$sharing_incident->incident_description = $orm_incident->incident_description;
-				$sharing_incident->incident_date = $orm_incident->incident_date;
+				$sharing_incident->incident_date = date("Y-m-d H:i:s", $orm_incident->incident_udate);
 				$sharing_incident->incident_mode = $orm_incident->incident_mode;
 				$sharing_incident->incident_active = $orm_incident->incident_active;
 				$sharing_incident->incident_verified = $orm_incident->incident_verified;
