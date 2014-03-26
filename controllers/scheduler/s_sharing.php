@@ -141,11 +141,14 @@ class S_Sharing_Controller extends Controller {
 
 				// Was this report originally from this site?
 				// Using parse_url so we don't get fooled by tralining slashes or other url crazy bits
+
 				if (! empty($incident_json['original']['incident']['sharingsourceurl'])) {
 					$source_url_parsed = parse_url($incident_json['original']['incident']['sharingsourceurl']);
 				} else {
 					$source_url_parsed = array("host" => NULL);
 				}
+
+				Kohana::log('sharing2import', "[" . $site->id . "] " . $source_url_parsed["host"] . " - " . $self_url_parsed["host"]);
 
 				if ($source_url_parsed["host"] == $self_url_parsed["host"])
 				{
