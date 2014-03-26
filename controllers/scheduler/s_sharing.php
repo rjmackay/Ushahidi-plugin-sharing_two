@@ -138,6 +138,7 @@ class S_Sharing_Controller extends Controller {
 					echo "Importing report $remote_incident_id : ". $incident_json["incident"]->incident_title. "<br/>";
 				}
 				$orm_incident = $incident_json['incident'];
+				$json_incident = $incident_json['original'];
 
 				// Was this report originally from this site?
 				// Using parse_url so we don't get fooled by tralining slashes or other url crazy bits
@@ -184,9 +185,17 @@ class S_Sharing_Controller extends Controller {
 				$incident_json['location']->save();
 				$sharing_incident->location_id = $incident_json['location']->id;
 
+				$date = $orm_incident->incident_date;
+
+				// if the API sent us a unix timestamp, use it instead
+				if (isset($json_incident["udate"]))
+				{
+					$date = date("Y-m-d H:i:s", $json_incident["udate"]);
+				}
+
 				$sharing_incident->incident_title = $orm_incident->incident_title;
 				$sharing_incident->incident_description = $orm_incident->incident_description;
-				$sharing_incident->incident_date = $orm_incident->incident_date;
+				$sharing_incident->incident_date = $date;
 				$sharing_incident->incident_mode = $orm_incident->incident_mode;
 				$sharing_incident->incident_active = $orm_incident->incident_active;
 				$sharing_incident->incident_verified = $orm_incident->incident_verified;
