@@ -151,7 +151,7 @@ class S_Sharing_Controller extends Controller {
 					$source_url_parsed = array("host" => NULL);
 				}
 
-				Kohana::log('sharing2import', "[" . $site->id . "] " . $source_url_parsed["host"] . " - " . $self_url_parsed["host"]);
+				// Kohana::log('sharing2import', "[" . $site->id . "] " . $source_url_parsed["host"] . " - " . $self_url_parsed["host"]);
 
 				if ($source_url_parsed["host"] == $self_url_parsed["host"])
 				{
