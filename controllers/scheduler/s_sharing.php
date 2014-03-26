@@ -102,6 +102,9 @@ class S_Sharing_Controller extends Controller {
 					// Check for error code 007 - no results
 					if ($json['error']['code'] == '007')
 					{
+						// delete all reports for this desite in case we haven't got anything back
+						$this->_delete_reports($site);
+
 						echo "No results.<BR /><BR />";
 					}
 					// Some other error - dump the JSON
@@ -239,7 +242,21 @@ class S_Sharing_Controller extends Controller {
 			}
 		}
 
-		// Delete the reports that are no longer being displayed on the shared site
+		// process reports to delete
+		$this->_delete_reports($site, $modified_ids);
+
+	}
+
+	/**
+	* Delete the reports that are no longer being displayed on the shared site
+	**/
+	private function _delete_reports($site, $modified_ids = array()) {
+
+		// if modified_ids is being passed empty, we want to delete all reports for this site
+		if (empty($modified_ids)) {
+			$modified_ids = array(-1);
+		}
+
 		if (count($modified_ids) > 0)
 		{
 			$sharing_incidents = ORM::factory('sharing_incident')
